@@ -1,4 +1,4 @@
-import { Body, Controller, Put, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Put,  Headers, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.auth.guard';
 import { CatchException } from 'src/utils/catch-exception';
@@ -15,12 +15,10 @@ export class UserController {
    @UseGuards(JwtAuthGuard)
    async updateUser(
       @Res() res: Response,
-      @Req() req: Request,
+      @Headers('Authorization') auth: string,
       @Body() data: UpdateUser,
    ) {
       try {
-         const auth = req.headers.authorization;
-
          const result = await this.userService.updateUser(auth, data);
 
          return res.status(200).json({
@@ -42,12 +40,10 @@ export class UserController {
    @UseGuards(JwtAuthGuard)
    async updateUserPassword(
       @Res() res: Response,
-      @Req() req: Request,
+      @Headers('Authorization') auth: string,
       @Body() data: UpdatePaswordUser,
    ) {
       try {
-         const auth = req.headers.authorization;
-
          await this.userService.updateUserPassword(auth, data);
 
          return res.status(200).json({

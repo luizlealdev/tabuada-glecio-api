@@ -4,9 +4,9 @@ import {
    Delete,
    Get,
    Post,
-   Req,
    Res,
    UseGuards,
+   Headers,
 } from '@nestjs/common';
 import { retry } from 'rxjs';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.auth.guard';
@@ -19,7 +19,7 @@ import { CatchException } from 'src/utils/catch-exception';
 export class RankingController {
    constructor(private rankingService: RankingService) {}
 
-   exceptionCatcher = new CatchException()
+   exceptionCatcher = new CatchException();
 
    @UseGuards(JwtAuthGuard)
    @Get('normal')
@@ -45,16 +45,12 @@ export class RankingController {
    @UseGuards(JwtAuthGuard)
    @Post('normal')
    async setRankingEntry(
-      @Req() req: Request,
+      @Headers('Authorization') auth: string,
       @Res() res: Response,
       @Body() data: RankingEntry,
    ) {
       try {
-         const auth = req.headers.authorization;
-         const result = await this.rankingService.setRankingEntry(
-            auth,
-            data,
-         );
+         const result = await this.rankingService.setRankingEntry(auth, data);
 
          return res.status(201).json({
             status_code: 201,
@@ -73,17 +69,17 @@ export class RankingController {
 
    @UseGuards(JwtAuthGuard)
    @Delete('normal')
-   async resetNormalRank(@Req() req: Request, @Res() res: Response) {
+   async resetNormalRank(
+      @Headers('Authorization') auth: string,
+      @Res() res: Response,
+   ) {
       try {
-         const auth = req.headers.authorization;
-
          await this.rankingService.resetNormalRank(auth);
 
          return res.status(200).json({
             status_code: 200,
             message: 'Ranking Entries Deleted Successfully',
          });
-
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
 
@@ -118,12 +114,11 @@ export class RankingController {
    @UseGuards(JwtAuthGuard)
    @Post('global')
    async setGlobalRankingEntry(
-      @Req() req: Request,
+      @Headers('Authorization') auth: string,
       @Res() res: Response,
       @Body() data: RankingEntry,
    ) {
       try {
-         const auth = req.headers.authorization;
          const result = await this.rankingService.setGlobalRankingEntry(
             auth,
             data,
