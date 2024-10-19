@@ -76,6 +76,29 @@ Autentica um usuário e retorna um token JWT
 
 ### Usuários
 
+#### `GET /user/:id`
+Pega as informações de um usuário específico
+
+- *Headers* 
+```
+Authorization: Bearer {token}
+```
+
+- *Response*
+```json
+{
+    "status_code": 200,
+    "message": "User Fetched Successfully",
+    "result": {
+        "id": 2,
+        "name": "Glécio Raimundo",
+        "class": "Infor 3",
+        "created_at": "2024-10-19T18:30:11.582Z",
+        "is_admin": false
+    }
+}
+```
+
 
 #### `PUT /user/update`
 Edita as informações públicas do usuário

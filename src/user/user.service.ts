@@ -21,6 +21,25 @@ export class UserService {
 
    tokenUtils = new TokenUtils(this.jwtService);
 
+   async getUser(userId: number): Promise<any> {
+      const user = await this.prisma.user.findUnique({
+         where: {
+            id: userId,
+         },
+         select: {
+            id: true,
+            name: true,
+            class: true,
+            created_at: true,
+            is_admin: true
+         }
+      });
+
+      if (!user) throw new NotFoundException('User Not Found');
+
+      return user;
+   }
+
    async createUser(data: RegisterUser): Promise<RegisterUser> {
       const existentUser = await this.prisma.user.findUnique({
          where: {

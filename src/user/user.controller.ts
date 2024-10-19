@@ -1,4 +1,4 @@
-import { Body, Controller, Put,  Headers, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Put,  Headers, Res, UseGuards, Get, Param } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.auth.guard';
 import { CatchException } from 'src/utils/catch-exception';
@@ -10,6 +10,29 @@ export class UserController {
    constructor(private readonly userService: UserService) {}
 
    exceptionCatcher = new CatchException();
+
+   @Get(':id')
+   @UseGuards(JwtAuthGuard)
+   async getUser(@Param('id') userId, @Res() res: Response) {
+      try {
+
+         const result = await this.userService.getUser(Number(userId));
+
+         return res.status(200).json({
+            status_code: 200,
+            message: 'User Fetched Successfully',
+            result: result,
+         });
+
+      } catch (err) {
+         const exceptionInfo = this.exceptionCatcher.catch(err);
+
+         return res.status(exceptionInfo.status_code).json({
+            status_code: exceptionInfo.status_code,
+            message: exceptionInfo.message,
+         });
+      }
+   }
 
    @Put('update')
    @UseGuards(JwtAuthGuard)
