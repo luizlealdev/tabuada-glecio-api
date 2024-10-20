@@ -10,7 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { RegisterUser, LoginUser } from './dto/user.dto';
-import { CatchException } from 'src/utils/catch-exception';
+import { CatchException } from '../utils/catch-exception';
 
 @Controller('auth')
 export class AuthController {

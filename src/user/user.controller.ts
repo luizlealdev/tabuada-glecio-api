@@ -1,6 +1,6 @@
 import { Body, Controller, Put,  Headers, Res, UseGuards, Get, Param } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { JwtAuthGuard } from 'src/auth/jwt/jwt.auth.guard';
+import { JwtAuthGuard } from '../auth/jwt/jwt.auth.guard';
 import { CatchException } from 'src/utils/catch-exception';
 import { UserService } from './user.service';
 import { UpdatePaswordUser, UpdateUser } from './dto/user-updates.dto';

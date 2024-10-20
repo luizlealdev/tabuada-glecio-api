@@ -9,11 +9,11 @@ import {
    Headers,
 } from '@nestjs/common';
 import { retry } from 'rxjs';
-import { JwtAuthGuard } from 'src/auth/jwt/jwt.auth.guard';
+import { JwtAuthGuard } from '../auth/jwt/jwt.auth.guard';
 import { RankingService } from './ranking.service';
 import { Request, Response } from 'express';
 import { RankingEntry } from './dto/ranking-entry.dto';
-import { CatchException } from 'src/utils/catch-exception';
+import { CatchException } from '../utils/catch-exception';
 
 @Controller('ranking')
 export class RankingController {

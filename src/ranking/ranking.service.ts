@@ -1,8 +1,8 @@
 import { Body, Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { RankingEntry } from './dto/ranking-entry.dto';
 import { JwtService } from '@nestjs/jwt';
-import { TokenUtils } from 'src/utils/token-utils';
+import { TokenUtils } from '../utils/token-utils';
 
 @Injectable()
 export class RankingService {
