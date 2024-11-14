@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 import { RegisterUser, LoginUser } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
-import { Request } from 'express';
+import { identity } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -21,11 +21,17 @@ export class AuthService {
          createUser.email = data.email;
          createUser.class = data.class;
          createUser.password = await bcrypt.hash(data.password, 10);
+         createUser.avatar_id = data.avatar_id;
 
          const user = await this.userService.createUser(createUser);
-         console.log(user.id);
 
          return {
+            user: {
+               id: user.id,
+               name: user.name,
+               class: user.class,
+               avatar_id: user.avatar_id,
+            },
             token: this.jwtService.sign({ sub: user.id, email: user.email }),
          };
       } catch (err) {
@@ -34,25 +40,36 @@ export class AuthService {
    }
 
    async login(data: LoginUser): Promise<any> {
-      const user = await this.prisma.user.findUnique({
-         where: {
-            email: data.email,
-         },
-      });
+      try {
+         const user = await this.prisma.user.findUnique({
+            where: {
+               email: data.email,
+            },
+         });
 
-      if (!user) throw new UnauthorizedException('User Not Found');
+         if (!user) throw new UnauthorizedException('User Not Found');
 
-      const passwordMatches = await bcrypt.compare(
-         data.password,
-         user.password,
-      );
-      console.log(passwordMatches);
+         const passwordMatches = await bcrypt.compare(
+            data.password,
+            user.password,
+         );
 
-      if (!passwordMatches)
-         throw new UnauthorizedException('Incorrect Password');
+         if (!passwordMatches)
+            throw new UnauthorizedException('Incorrect Password');
 
-      return {
-         token: this.jwtService.sign({ email: (await user).name }),
-      };
+         return {
+            user: {
+               id: user.id,
+               name: user.name,
+               class: user.class,
+               avatar_id: user.avatar_id,
+               is_admin: user.is_admin,
+            },
+            token: this.jwtService.sign({ email: (await user).name }),
+         };
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
    }
 }

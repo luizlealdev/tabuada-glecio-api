@@ -11,22 +11,26 @@ import { RankingController } from './ranking/ranking.controller';
 import { RankingService } from './ranking/ranking.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cron/cron.service';
-import { TokenUtils } from './utils/token-utils';
+import { UserController } from './user/user.controller';
+import { AvatarsService } from './avatars/avatars.service';
+import { AvatarsController } from './avatars/avatars.controller';
 
 @Module({
-   imports: [
-      AuthModule,
-      PrismaModule,
-      UserModule,
-      ScheduleModule.forRoot(),
+   imports: [AuthModule, PrismaModule, UserModule, ScheduleModule.forRoot()],
+   controllers: [
+      AppController,
+      AuthController,
+      RankingController,
+      UserController,
+      AvatarsController,
    ],
-   controllers: [AppController, AuthController, RankingController],
    providers: [
       AppService,
       UserService,
       AuthService,
       RankingService,
       CronService,
+      AvatarsService,
    ],
 })
 export class AppModule {}

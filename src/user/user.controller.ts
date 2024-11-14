@@ -1,11 +1,20 @@
-import { Body, Controller, Put,  Headers, Res, UseGuards, Get, Param } from '@nestjs/common';
-import { Request, Response } from 'express';
+import {
+   Body,
+   Controller,
+   Put,
+   Headers,
+   Res,
+   UseGuards,
+   Get,
+   Param,
+} from '@nestjs/common';
+import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt/jwt.auth.guard';
 import { CatchException } from 'src/utils/catch-exception';
 import { UserService } from './user.service';
 import { UpdatePaswordUser, UpdateUser } from './dto/user-updates.dto';
 
-@Controller('user')
+@Controller('api/v1/user')
 export class UserController {
    constructor(private readonly userService: UserService) {}
 
@@ -15,7 +24,6 @@ export class UserController {
    @UseGuards(JwtAuthGuard)
    async getUser(@Param('id') userId, @Res() res: Response) {
       try {
-
          const result = await this.userService.getUser(Number(userId));
 
          return res.status(200).json({
@@ -23,7 +31,6 @@ export class UserController {
             message: 'User Fetched Successfully',
             result: result,
          });
-
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
 

@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsString, Length } from 'class-validator';
 
 export class RegisterUser {
    id?: number;
@@ -19,6 +19,11 @@ export class RegisterUser {
    @IsString()
    @IsNotEmpty()
    password: string;
+
+   @IsNotEmpty()
+   @IsNumber()
+   @Length(1, 50)
+   avatar_id: number;
 }
 
 export class LoginUser {

@@ -22,92 +22,116 @@ export class UserService {
    tokenUtils = new TokenUtils(this.jwtService);
 
    async getUser(userId: number): Promise<any> {
-      const user = await this.prisma.user.findUnique({
-         where: {
-            id: userId,
-         },
-         select: {
-            id: true,
-            name: true,
-            class: true,
-            created_at: true,
-            is_admin: true
-         }
-      });
+      try {
+         const user = await this.prisma.user.findUnique({
+            where: {
+               id: userId,
+            },
+            select: {
+               id: true,
+               name: true,
+               class: true,
+               max_score: true,
+               created_at: true,
+               is_admin: true,
+               avatar: true,
+            },
+         });
 
-      if (!user) throw new NotFoundException('User Not Found');
+         if (!user) throw new NotFoundException('User Not Found');
 
-      return user;
+         return user;
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
    }
 
    async createUser(data: RegisterUser): Promise<RegisterUser> {
-      const existentUser = await this.prisma.user.findUnique({
-         where: {
-            email: data.email,
-         },
-      });
+      try {
+         const existentUser = await this.prisma.user.findUnique({
+            where: {
+               email: data.email,
+            },
+         });
 
-      if (existentUser != null)
-         throw new ConflictException('User already exists');
+         if (existentUser != null)
+            throw new ConflictException('User already exists');
 
-      console.log(data);
-
-      return await this.prisma.user.create({ data });
+         return await this.prisma.user.create({
+            data,
+         });
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
    }
 
    async updateUser(auth: string, @Body() data: UpdateUser): Promise<any> {
-      const decodedToken = this.tokenUtils.getDecodedToken(auth);
+      try {
+         const decodedToken = this.tokenUtils.getDecodedToken(auth);
 
-      const user = await this.prisma.user.update({
-         data: {
-            name: data.name,
-            class: data.class,
-         },
-         select: {
-            id: true,
-            name: true,
-            class: true,
-         },
-         where: {
-            email: decodedToken.email,
-         },
-      });
+         const user = await this.prisma.user.update({
+            data: {
+               name: data.name,
+               class: data.class,
+               avatar_id: data.avatar_id
+            },
+            select: {
+               id: true,
+               name: true,
+               class: true,
+               avatar: true
+            },
+            where: {
+               email: decodedToken.email,
+            },
+         });
 
-      if (!user) throw new NotFoundException('User Not Found');
+         if (!user) throw new NotFoundException('User Not Found');
 
-      return user;
+         return user;
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
    }
 
    async updateUserPassword(auth: string, @Body() data: UpdatePaswordUser) {
-      const decodedToken = this.tokenUtils.getDecodedToken(auth);
+      try {
+         const decodedToken = this.tokenUtils.getDecodedToken(auth);
 
-      const user = await this.prisma.user.findUnique({
-         where: {
-            id: decodedToken.sub,
-         },
-      });
+         const user = await this.prisma.user.findUnique({
+            where: {
+               id: decodedToken.sub,
+            },
+         });
 
-      if (!user) {
-         throw new UnauthorizedException('User Not Found');
+         if (!user) {
+            throw new UnauthorizedException('User Not Found');
+         }
+
+         const passwordMatches = await bcrypt.compare(
+            data.old_password,
+            user.password,
+         );
+         if (!passwordMatches) {
+            throw new UnauthorizedException('Incorrect Password');
+         }
+
+         const newPasswordHash = await bcrypt.hash(data.new_password, 10);
+
+         await this.prisma.user.update({
+            data: {
+               password: newPasswordHash,
+            },
+            where: {
+               id: decodedToken.sub,
+            },
+         });
+      } catch (err) {
+         console.error(err);
+         throw err;
       }
-
-      const passwordMatches = await bcrypt.compare(
-         data.old_password,
-         user.password,
-      );
-      if (!passwordMatches) {
-         throw new UnauthorizedException('Incorrect Password');
-      }
-
-      const newPasswordHash = await bcrypt.hash(data.new_password, 10);
-
-      await this.prisma.user.update({
-         data: {
-            password: newPasswordHash,
-         },
-         where: {
-            id: decodedToken.sub,
-         },
-      });
    }
 }

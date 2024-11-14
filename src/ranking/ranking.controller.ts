@@ -8,14 +8,13 @@ import {
    UseGuards,
    Headers,
 } from '@nestjs/common';
-import { retry } from 'rxjs';
 import { JwtAuthGuard } from '../auth/jwt/jwt.auth.guard';
 import { RankingService } from './ranking.service';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { RankingEntry } from './dto/ranking-entry.dto';
 import { CatchException } from '../utils/catch-exception';
 
-@Controller('ranking')
+@Controller('api/v1/ranking')
 export class RankingController {
    constructor(private rankingService: RankingService) {}
 
@@ -82,6 +81,7 @@ export class RankingController {
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
+         console.log(exceptionInfo)
 
          return res.status(exceptionInfo.status_code).json({
             status_code: exceptionInfo.status_code,

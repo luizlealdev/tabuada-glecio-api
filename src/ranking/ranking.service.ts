@@ -1,4 +1,9 @@
-import { Body, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+   BadRequestException,
+   Body,
+   Injectable,
+   UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RankingEntry } from './dto/ranking-entry.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -17,70 +22,86 @@ export class RankingService {
    private cacheGlobalRankingResult = [];
 
    async getAllRankingEntries(): Promise<any> {
-      if (this.cacheNormalRankingResult.length != 0) {
-         console.log('Application: returning normal ranking cache entries');
+      try {
+         if (this.cacheNormalRankingResult.length != 0) {
+            console.log('Application: returning normal ranking cache entries');
 
-         return this.cacheNormalRankingResult;
-      }
+            return this.cacheNormalRankingResult;
+         }
 
-      const rankingEntries = await this.prisma.ranking.findMany({
-         orderBy: {
-            score: 'desc',
-         },
-         select: {
-            id: true,
-            score: true,
-            user: {
-               select: {
-                  id: true,
-                  name: true,
-                  class: true,
+         const rankingEntries = await this.prisma.ranking.findMany({
+            orderBy: {
+               score: 'desc',
+            },
+            take: 60,
+            select: {
+               id: true,
+               score: true,
+               user: {
+                  select: {
+                     id: true,
+                     name: true,
+                     class: true,
+                     avatar: true,
+                  },
                },
             },
-         },
-      });
+         });
 
-      this.cacheNormalRankingResult = rankingEntries;
-      return rankingEntries;
+         this.cacheNormalRankingResult = rankingEntries;
+         return rankingEntries;
+      } catch (err) {
+         throw err;
+      }
    }
 
    async setRankingEntry(auth: string, data: RankingEntry): Promise<any> {
-      const decodedToken = this.tokenUtils.getDecodedToken(auth);
+      try {
+         const decodedToken = this.tokenUtils.getDecodedToken(auth);
 
-      const newRankingEntry = this.prisma.ranking.upsert({
-         where: {
-            user_id: decodedToken.sub,
-         },
-         update: {
-            score: data.score,
-         },
-         create: {
-            score: data.score,
-            user_id: decodedToken.sub,
-         },
-         select: {
-            score: true,
-            user_id: true,
-         },
-      });
+         const newRankingEntry = this.prisma.ranking.upsert({
+            where: {
+               user_id: decodedToken.sub,
+            },
+            update: {
+               score: data.score,
+            },
+            create: {
+               score: data.score,
+               user_id: decodedToken.sub,
+            },
+            select: {
+               score: true,
+               user_id: true,
+            },
+         });
 
-      this.cacheNormalRankingResult = [];
-      return newRankingEntry;
+         this.cacheNormalRankingResult = [];
+         return newRankingEntry;
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
    }
 
    async resetNormalRank(auth: string) {
-      const decodedToken = this.tokenUtils.getDecodedToken(auth);
+      try {
+         const decodedToken = this.tokenUtils.getDecodedToken(auth);
 
-      const admin = await this.prisma.user.findFirst({
-         where: {
-            email: decodedToken.email,
-         },
-      });
+         const admin = await this.prisma.user.findFirst({
+            where: {
+               email: decodedToken.email,
+            },
+         });
 
-      if (!admin || !admin.is_admin)
-         throw new UnauthorizedException('Unauthorized to reset the rank');
+         if (!admin || !admin.is_admin)
+            throw new UnauthorizedException('Unauthorized to reset the rank');
 
-      await this.prisma.ranking.deleteMany();
+         await this.prisma.ranking.deleteMany();
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
    }
 
    /* Global Ranking Entries */
@@ -105,6 +126,7 @@ export class RankingService {
                   id: true,
                   name: true,
                   class: true,
+                  avatar: true,
                },
             },
          },
@@ -115,27 +137,50 @@ export class RankingService {
    }
 
    async setGlobalRankingEntry(auth: string, data: RankingEntry): Promise<any> {
-      const decodedToken = this.tokenUtils.getDecodedToken(auth);
+      try {
+         const decodedToken = this.tokenUtils.getDecodedToken(auth);
 
+         const currentUser = await this.prisma.user.findUnique({
+            where: {
+               id: decodedToken.sub,
+            },
+         });
 
-      const newRankingEntry = this.prisma.ranking_global.upsert({
-         where: {
-            user_id: decodedToken.sub,
-         },
-         update: {
-            score: data.score,
-         },
-         create: {
-            score: data.score,
-            user_id: decodedToken.sub,
-         },
-         select: {
-            score: true,
-            user_id: true,
-         },
-      });;
+         if (currentUser.max_score > data.score)
+            throw new BadRequestException(
+               'The score is lower than the max score',
+            );
 
-      this.cacheGlobalRankingResult = []
-      return newRankingEntry;
+         const newRankingEntry = await this.prisma.ranking_global.upsert({
+            where: {
+               user_id: decodedToken.sub,
+            },
+            update: {
+               score: data.score,
+            },
+            create: {
+               score: data.score,
+               user_id: decodedToken.sub,
+            },
+            select: {
+               score: true,
+               user_id: true,
+            },
+         });
+         await this.prisma.user.update({
+            where: {
+               id: decodedToken.sub,
+            },
+            data: {
+               max_score: data.score,
+            },
+         });
+
+         this.cacheGlobalRankingResult = [];
+         return newRankingEntry;
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
    }
 }

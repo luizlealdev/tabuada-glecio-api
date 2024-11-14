@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class UpdateUser {
    @IsString()
@@ -8,14 +8,18 @@ export class UpdateUser {
    @IsString()
    @IsNotEmpty()
    class: string;
+
+   @IsNumber()
+   @IsNotEmpty()
+   avatar_id: number;
 }
 
 export class UpdatePaswordUser {
    @IsString()
    @IsNotEmpty()
-   old_password: string
+   old_password: string;
 
    @IsString()
    @IsNotEmpty()
-   new_password: string
+   new_password: string;
 }
