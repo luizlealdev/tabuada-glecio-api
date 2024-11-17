@@ -42,7 +42,28 @@ export class RankingController {
    }
 
    @UseGuards(JwtAuthGuard)
-   @Post('normal')
+   @Get('global')
+   async getAllGlobalRankingEntries(@Res() res: Response) {
+      try {
+         const result = await this.rankingService.getAllGlobalRankEntries();
+
+         return res.status(200).json({
+            status_code: 200,
+            message: 'Ranking Entries Fetched Successfully',
+            result: result,
+         });
+      } catch (err) {
+         const exceptionInfo = this.exceptionCatcher.catch(err);
+
+         return res.status(exceptionInfo.status_code).json({
+            status_code: exceptionInfo.status_code,
+            message: exceptionInfo.message,
+         });
+      }
+   }
+
+   @UseGuards(JwtAuthGuard)
+   @Post()
    async setRankingEntry(
       @Headers('Authorization') auth: string,
       @Res() res: Response,
@@ -67,7 +88,7 @@ export class RankingController {
    }
 
    @UseGuards(JwtAuthGuard)
-   @Delete('normal')
+   @Delete()
    async resetNormalRank(
       @Headers('Authorization') auth: string,
       @Res() res: Response,
@@ -81,56 +102,7 @@ export class RankingController {
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
-         console.log(exceptionInfo)
-
-         return res.status(exceptionInfo.status_code).json({
-            status_code: exceptionInfo.status_code,
-            message: exceptionInfo.message,
-         });
-      }
-   }
-
-   @UseGuards(JwtAuthGuard)
-   @Get('global')
-   async getAllGlobalRankingEntries(@Res() res: Response) {
-      try {
-         const result = await this.rankingService.getAllGlobalRankEntries();
-
-         return res.status(200).json({
-            status_code: 200,
-            message: 'Ranking Entries Fetched Successfully',
-            result: result,
-         });
-      } catch (err) {
-         const exceptionInfo = this.exceptionCatcher.catch(err);
-
-         return res.status(exceptionInfo.status_code).json({
-            status_code: exceptionInfo.status_code,
-            message: exceptionInfo.message,
-         });
-      }
-   }
-
-   @UseGuards(JwtAuthGuard)
-   @Post('global')
-   async setGlobalRankingEntry(
-      @Headers('Authorization') auth: string,
-      @Res() res: Response,
-      @Body() data: RankingEntry,
-   ) {
-      try {
-         const result = await this.rankingService.setGlobalRankingEntry(
-            auth,
-            data,
-         );
-
-         return res.status(201).json({
-            status_code: 201,
-            message: 'Ranking Entry Created Successfully',
-            result: result,
-         });
-      } catch (err) {
-         const exceptionInfo = this.exceptionCatcher.catch(err);
+         console.log(exceptionInfo);
 
          return res.status(exceptionInfo.status_code).json({
             status_code: exceptionInfo.status_code,

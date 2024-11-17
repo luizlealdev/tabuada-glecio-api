@@ -55,55 +55,6 @@ export class RankingService {
       }
    }
 
-   async setRankingEntry(auth: string, data: RankingEntry): Promise<any> {
-      try {
-         const decodedToken = this.tokenUtils.getDecodedToken(auth);
-
-         const newRankingEntry = this.prisma.ranking.upsert({
-            where: {
-               user_id: decodedToken.sub,
-            },
-            update: {
-               score: data.score,
-            },
-            create: {
-               score: data.score,
-               user_id: decodedToken.sub,
-            },
-            select: {
-               score: true,
-               user_id: true,
-            },
-         });
-
-         this.cacheNormalRankingResult = [];
-         return newRankingEntry;
-      } catch (err) {
-         console.error(err);
-         throw err;
-      }
-   }
-
-   async resetNormalRank(auth: string) {
-      try {
-         const decodedToken = this.tokenUtils.getDecodedToken(auth);
-
-         const admin = await this.prisma.user.findFirst({
-            where: {
-               email: decodedToken.email,
-            },
-         });
-
-         if (!admin || !admin.is_admin)
-            throw new UnauthorizedException('Unauthorized to reset the rank');
-
-         await this.prisma.ranking.deleteMany();
-      } catch (err) {
-         console.error(err);
-         throw err;
-      }
-   }
-
    /* Global Ranking Entries */
 
    async getAllGlobalRankEntries(): Promise<any> {
@@ -136,22 +87,11 @@ export class RankingService {
       return rankingEntries;
    }
 
-   async setGlobalRankingEntry(auth: string, data: RankingEntry): Promise<any> {
+   async setRankingEntry(auth: string, data: RankingEntry): Promise<any> {
       try {
          const decodedToken = this.tokenUtils.getDecodedToken(auth);
 
-         const currentUser = await this.prisma.user.findUnique({
-            where: {
-               id: decodedToken.sub,
-            },
-         });
-
-         if (currentUser.max_score > data.score)
-            throw new BadRequestException(
-               'The score is lower than the max score',
-            );
-
-         const newRankingEntry = await this.prisma.ranking_global.upsert({
+         const newRankingEntry = this.prisma.ranking.upsert({
             where: {
                user_id: decodedToken.sub,
             },
@@ -167,17 +107,64 @@ export class RankingService {
                user_id: true,
             },
          });
-         await this.prisma.user.update({
+
+         const currentUser = await this.prisma.user.findUnique({
             where: {
                id: decodedToken.sub,
             },
-            data: {
-               max_score: data.score,
+         });
+
+         if (data.score > currentUser.max_score) {
+            console.log('Application: setting global ranking entry');
+
+            await this.prisma.ranking_global.upsert({
+               where: {
+                  user_id: decodedToken.sub,
+               },
+               update: {
+                  score: data.score,
+               },
+               create: {
+                  score: data.score,
+                  user_id: decodedToken.sub,
+               },
+               select: {
+                  score: true,
+                  user_id: true,
+               },
+            });
+            await this.prisma.user.update({
+               where: {
+                  id: decodedToken.sub,
+               },
+               data: {
+                  max_score: data.score,
+               },
+            });
+         }
+
+         this.cacheNormalRankingResult = [];
+         return newRankingEntry;
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
+   }
+
+   async resetNormalRank(auth: string) {
+      try {
+         const decodedToken = this.tokenUtils.getDecodedToken(auth);
+
+         const admin = await this.prisma.user.findFirst({
+            where: {
+               email: decodedToken.email,
             },
          });
 
-         this.cacheGlobalRankingResult = [];
-         return newRankingEntry;
+         if (!admin || !admin.is_admin)
+            throw new UnauthorizedException('Unauthorized to reset the rank');
+
+         await this.prisma.ranking.deleteMany();
       } catch (err) {
          console.error(err);
          throw err;

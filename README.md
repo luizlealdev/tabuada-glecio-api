@@ -18,11 +18,11 @@ Esse projeto é uma API para o jogo da tabuada do professor Glécio Raimundo da 
 
 3. Crie um arquivo chamado .env e coloque as seguintes infmações
    ```bash
-   DATABASE_URL='mysql://xxxxxx@yyyyyyyyy.us-east-1.aws:5432/zzzzz?sslmode=require'
+   DATABASE_URL='mysql://user:password@path.aws.com:00000/database?ssl-mode=REQUIRED'
    JWT_SECRET='xxxxxxxxxxxxxxxxxxxxxxxxx'
    JWT_EXPIRES_IN='1d'
    ```
-4. Rode as migrações do banco de dados (caso esteja usando Prisma):
+4. Rode as migrações do banco de dados:
    ```bash
    npx prisma migrate dev
    ```
@@ -121,6 +121,7 @@ Authorization: Bearer {token}
       "id": 1,
       "name": "Glécio Raimundo",
       "class": "Infor 3",
+      "max_score": 48,
       "created_at": "2024-10-19T18:30:11.582Z",
       "is_admin": true,
       "avatar": {
@@ -261,9 +262,9 @@ Retorna a lista de todos os avatars
 
 ### Ranking
 
-#### `POST /api/v1/ranking/normal`
+#### `POST /api/v1/ranking`
 
-Cria uma nova entry no ranking (normal)
+Cria uma nova entry nos rankings
 
 -  _Headers_
 
@@ -349,66 +350,6 @@ Authorization: Bearer {token}
 }
 ```
 
-#### `DELETE /api/v1/ranking/normal`
-
-Limpa o ranking
-
-> [!WARNING]  
-> Apenas usuários com acesso de Admin podem fazer essa ação
-
--  _Headers_
-
-```
-Authorization: Bearer {token}
-```
-
--  _Response_
-
-```json
-{
-   "status_code": 200,
-   "message": "Ranking Entries Deleted Successfully"
-}
-```
-
----
-
-### Ranking Global
-
-#### `POST /api/v1/ranking/global`
-
-Cria uma nova entry no ranking (global)
-
-> [!NOTE]  
-> Ao contrário do Ranking Normal, nesse ranking o request será enviado apenas se o usuário atingir seu recorde de pontros.
-
--  _Headers_
-
-```
-Authorization: Bearer {token}
-```
-
--  _Request_
-
-```json
-{
-   "score": 50
-}
-```
-
--  _Response_
-
-```json
-{
-   "status_code": 201,
-   "message": "Ranking Entry Created Successfully",
-   "result": {
-      "score": 50,
-      "user_id": 23
-   }
-}
-```
-
 #### `GET /api/v1/ranking/global`
 
 Retorna a lista de todos os dados do ranking global ordenados de forma decrescente
@@ -445,6 +386,28 @@ Authorization: Bearer {token}
          }
       }
    ]
+}
+```
+
+#### `DELETE /api/v1/ranking`
+
+Limpa o ranking normal
+
+> [!WARNING]  
+> Apenas usuários com acesso de Admin podem fazer essa ação
+
+-  _Headers_
+
+```
+Authorization: Bearer {token}
+```
+
+-  _Response_
+
+```json
+{
+   "status_code": 200,
+   "message": "Ranking Entries Deleted Successfully"
 }
 ```
 
