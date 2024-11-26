@@ -11,6 +11,11 @@ export class AvatarsService {
             where: {
                is_special: false,
             },
+            select: {
+               path_default: true,
+               path_256px: true,
+               path_128px: true
+            }
          });
 
          return avatars;

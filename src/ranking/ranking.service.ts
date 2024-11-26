@@ -42,7 +42,13 @@ export class RankingService {
                      id: true,
                      name: true,
                      class: true,
-                     avatar: true,
+                     avatar: {
+                        select: {
+                           path_default: true,
+                           path_256px: true,
+                           path_128px: true
+                        }
+                     },
                   },
                },
             },
@@ -77,7 +83,13 @@ export class RankingService {
                   id: true,
                   name: true,
                   class: true,
-                  avatar: true,
+                  avatar: {
+                     select: {
+                        path_default: true,
+                        path_256px: true,
+                        path_128px: true
+                     }
+                  },
                },
             },
          },
