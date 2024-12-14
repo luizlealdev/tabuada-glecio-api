@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AvatarsService {
@@ -12,6 +12,7 @@ export class AvatarsService {
                is_special: false,
             },
             select: {
+               id: true,
                path_default: true,
                path_256px: true,
                path_128px: true

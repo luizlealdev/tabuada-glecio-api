@@ -30,11 +30,23 @@ export class UserService {
             select: {
                id: true,
                name: true,
-               class: true,
                max_score: true,
                created_at: true,
                is_admin: true,
-               avatar: true,
+               course: {
+                  select: {
+                     id: true,
+                     name: true,
+                  },
+               },
+               avatar: {
+                  select: {
+                     id: true,
+                     path_default: true,
+                     path_256px: true,
+                     path_128px: true,
+                  },
+               },
             },
          });
 
@@ -47,7 +59,7 @@ export class UserService {
       }
    }
 
-   async createUser(data: RegisterUser): Promise<RegisterUser> {
+   async createUser(data: RegisterUser): Promise<any> {
       try {
          const existentUser = await this.prisma.user.findUnique({
             where: {
@@ -60,6 +72,20 @@ export class UserService {
 
          return await this.prisma.user.create({
             data,
+            include: {
+               course: {
+                  select: {
+                     name: true,
+                  },
+               },
+               avatar: {
+                  select: {
+                     path_default: true,
+                     path_256px: true,
+                     path_128px: true,
+                  },
+               },
+            },
          });
       } catch (err) {
          console.error(err);
@@ -74,14 +100,26 @@ export class UserService {
          const user = await this.prisma.user.update({
             data: {
                name: data.name,
-               class: data.class,
-               avatar_id: data.avatar_id
+               course_id: data.course_id,
+               avatar_id: data.avatar_id,
             },
             select: {
                id: true,
                name: true,
-               class: true,
-               avatar: true
+               course: {
+                  select: {
+                     id: true,
+                     name: true,
+                  },
+               },
+               avatar: {
+                  select: {
+                     id: true,
+                     path_default: true,
+                     path_256px: true,
+                     path_128px: true,
+                  },
+               },
             },
             where: {
                email: decodedToken.email,

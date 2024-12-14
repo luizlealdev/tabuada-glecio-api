@@ -41,7 +41,13 @@ export class RankingService {
                   select: {
                      id: true,
                      name: true,
-                     class: true,
+                     course_id: true,
+                     course: {
+                        select: {
+                           name: true,
+                        }
+                     },
+                     avatar_id: true,
                      avatar: {
                         select: {
                            path_default: true,
@@ -82,7 +88,13 @@ export class RankingService {
                select: {
                   id: true,
                   name: true,
-                  class: true,
+                  course_id: true,
+                  course: {
+                     select: {
+                        name: true,
+                     }
+                  },
+                  avatar_id: true,
                   avatar: {
                      select: {
                         path_default: true,

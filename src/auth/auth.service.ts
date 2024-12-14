@@ -1,10 +1,17 @@
-import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
+import {
+   BadRequestException,
+   Injectable,
+   NotFoundException,
+   UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 import { RegisterUser, LoginUser } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
-import { identity } from 'rxjs';
+import { MailService } from '../mail/mail.service';
+import { IntUtils } from '../utils/int-utils';
+import { TokenUtils } from 'src/utils/token-utils';
 
 @Injectable()
 export class AuthService {
@@ -12,14 +19,18 @@ export class AuthService {
       private readonly prisma: PrismaService,
       private jwtService: JwtService,
       private readonly userService: UserService,
+      private mailService: MailService,
    ) {}
+
+   intUtils = new IntUtils();
+   tokenUtils = new TokenUtils(this.jwtService);
 
    async register(data: RegisterUser): Promise<any> {
       try {
          const createUser = new RegisterUser();
          createUser.name = data.name;
          createUser.email = data.email;
-         createUser.class = data.class;
+         createUser.course_id = data.course_id;
          createUser.password = await bcrypt.hash(data.password, 10);
          createUser.avatar_id = data.avatar_id;
 
@@ -29,13 +40,17 @@ export class AuthService {
             user: {
                id: user.id,
                name: user.name,
-               class: user.class,
+               course_id: user.course_id,
+               course: user.course,
                avatar_id: user.avatar_id,
+               avatar: user.avatar,
+               is_admin: user.is_admin,
             },
             token: this.jwtService.sign({ sub: user.id, email: user.email }),
          };
       } catch (err) {
-         throw new Error('Erro ao criar o usuário ou gerar o token: ' + err);
+         console.error(err);
+         throw err;
       }
    }
 
@@ -44,6 +59,20 @@ export class AuthService {
          const user = await this.prisma.user.findUnique({
             where: {
                email: data.email,
+            },
+            include: {
+               avatar: {
+                  select: {
+                     path_default: true,
+                     path_256px: true,
+                     path_128px: true,
+                  },
+               },
+               course: {
+                  select: {
+                     name: true,
+                  },
+               },
             },
          });
 
@@ -61,12 +90,81 @@ export class AuthService {
             user: {
                id: user.id,
                name: user.name,
-               class: user.class,
+               course_id: user.course_id,
+               course: user.course,
                avatar_id: user.avatar_id,
+               avatar: user.avatar,
                is_admin: user.is_admin,
             },
-            token: this.jwtService.sign({ email: (await user).name }),
+            token: this.jwtService.sign({
+               sub: user.id,
+               email: (await user).email,
+            }),
          };
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
+   }
+
+   async sendResetPasswordEmail(data: any): Promise<any> {
+      try {
+         if (!data.email)
+            throw new BadRequestException('No Email Provided On Body');
+
+         const user = await this.prisma.user.findUnique({
+            where: {
+               email: data.email,
+            },
+            select: {
+               id: true,
+               email: true,
+            },
+         });
+
+         if (user) {
+            const payload = { sub: user.id, email: user.email };
+            const tempJwtToken = this.jwtService.sign(payload, {
+               expiresIn: '5m',
+               secret: process.env.JWT_TEMP_SECRET,
+            });
+
+            this.mailService.sendResetPasswordEmail(data.email, tempJwtToken);
+         }
+      } catch (err) {
+         console.error(err);
+         throw err;
+      }
+   }
+
+   async resetPassword(auth: string, data: any): Promise<any> {
+      try {
+         if (!data.new_password)
+            throw new BadRequestException('No Password Provided On Body');
+
+         const decodedToken = this.tokenUtils.getDecodedToken(auth);
+
+         const user = await this.prisma.user.findUnique({
+            where: {
+               id: decodedToken.sub,
+               email: decodedToken.email,
+            },
+         });
+
+         if (!user)
+            new UnauthorizedException('Unauthorized To Reset The Password');
+
+         let newPassword = await bcrypt.hash(data.new_password, 10);
+
+         await this.prisma.user.update({
+            where: {
+               email: decodedToken.email,
+               id: decodedToken.sub,
+            },
+            data: {
+               password: newPassword,
+            },
+         });
       } catch (err) {
          console.error(err);
          throw err;

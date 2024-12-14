@@ -14,11 +14,11 @@ export class RegisterUser {
 
    @IsString()
    @IsNotEmpty()
-   class: string;
-
-   @IsString()
-   @IsNotEmpty()
    password: string;
+
+   @IsNumber()
+   @IsNotEmpty()
+   course_id: number;
 
    @IsNotEmpty()
    @IsNumber()
