@@ -22,7 +22,7 @@ export class AvatarsService {
          return avatars;
       } catch (err) {
          console.error(err);
-         throw new InternalServerErrorException('Error Fetching Avatars');
+         throw err;
       }
    }
 }

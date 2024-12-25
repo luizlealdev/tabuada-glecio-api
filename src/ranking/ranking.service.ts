@@ -186,7 +186,7 @@ export class RankingService {
          });
 
          if (!admin || !admin.is_admin)
-            throw new UnauthorizedException('Unauthorized to reset the rank');
+            throw new UnauthorizedException('Você não tem permissão para acessar este recurso.');
 
          await this.prisma.ranking.deleteMany();
       } catch (err) {

@@ -76,7 +76,7 @@ export class AuthService {
             },
          });
 
-         if (!user) throw new UnauthorizedException('User Not Found');
+         if (!user) throw new UnauthorizedException('O usuário não foi encontrado.');
 
          const passwordMatches = await bcrypt.compare(
             data.password,
@@ -84,7 +84,7 @@ export class AuthService {
          );
 
          if (!passwordMatches)
-            throw new UnauthorizedException('Incorrect Password');
+            throw new UnauthorizedException('Senha incorreta. Tente novamente');
 
          return {
             user: {
@@ -110,7 +110,7 @@ export class AuthService {
    async sendResetPasswordEmail(data: any): Promise<any> {
       try {
          if (!data.email)
-            throw new BadRequestException('No Email Provided On Body');
+            throw new BadRequestException('O campo email é obrigatório.');
 
          const user = await this.prisma.user.findUnique({
             where: {
@@ -140,7 +140,7 @@ export class AuthService {
    async resetPassword(auth: string, data: any): Promise<any> {
       try {
          if (!data.new_password)
-            throw new BadRequestException('No Password Provided On Body');
+            throw new BadRequestException('O campo "senha" é obrigatório.');
 
          const decodedToken = this.tokenUtils.getDecodedToken(auth);
 
@@ -152,7 +152,7 @@ export class AuthService {
          });
 
          if (!user)
-            new UnauthorizedException('Unauthorized To Reset The Password');
+            new UnauthorizedException('O usuário não foi encontrado.');
 
          let newPassword = await bcrypt.hash(data.new_password, 10);
 

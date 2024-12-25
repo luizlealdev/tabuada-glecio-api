@@ -5,7 +5,7 @@ export class AppService {
    getMessage(): any {
       return {
          status_code: 200,
-         message: "The API is running. Let's Papocar!",
+         message: "A API está rodando. Vamos papocar!",
       };
    }
 }

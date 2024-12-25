@@ -27,7 +27,7 @@ export class MailService {
             
             <p>O código é válido por 5 minutos<p>`,
          });
-         console.log('E-mail enviado com sucesso!');
+         console.log('Email send sucessfully!');
       } catch (err) {
          console.error(err);
          throw err;

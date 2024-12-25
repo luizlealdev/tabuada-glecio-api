@@ -10,7 +10,6 @@ import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { RegisterUser, LoginUser } from './dto/user.dto';
 import { CatchException } from '../utils/catch-exception';
-import { AuthGuard } from '@nestjs/passport';
 import { JwtTempStrategy } from './jwt/jwt-temp.strategy';
 
 @Controller('api/v1/auth')
@@ -26,7 +25,7 @@ export class AuthController {
 
          return res.status(201).json({
             status_code: 201,
-            message: 'User Created Successfully',
+            message: 'Usuário criado com sucesso.',
             result: result,
          });
       } catch (err) {
@@ -46,7 +45,7 @@ export class AuthController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'User Logged Successfully',
+            message: 'Usuário logado com sucesso.',
             result: result,
          });
       } catch (err) {
@@ -66,7 +65,7 @@ export class AuthController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'Email Send Sucessfully',
+            message: 'Email enviado com sucesso. Verifique sua caixa de entrada.',
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -90,7 +89,7 @@ export class AuthController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'Password Reseted Sucessfully',
+            message: 'Senha resetada com sucesso.',
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);

@@ -16,7 +16,7 @@ export class CoursesController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'Courses List Fetched Sucessfully',
+            message: 'Cursos listados com sucesso.',
             result: courses,
          });
       } catch (err) {

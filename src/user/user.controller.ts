@@ -28,7 +28,7 @@ export class UserController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'User Fetched Successfully',
+            message: 'Informações do usuário consultadas com sucesso.',
             result: result,
          });
       } catch (err) {
@@ -53,7 +53,7 @@ export class UserController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'User Updated Successfully',
+            message: 'Informações do usuário atualizadas com sucesso.',
             result: result,
          });
       } catch (err) {
@@ -78,7 +78,7 @@ export class UserController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'User Password Updated Successfully',
+            message: 'Senha do usuário atualizada com sucesso.',
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);

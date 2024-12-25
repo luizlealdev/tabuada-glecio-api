@@ -28,7 +28,7 @@ export class RankingController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'Ranking Entries Fetched Successfully',
+            message: 'Entradas do ranking listada com sucesso.',
             result: result,
          });
       } catch (err) {
@@ -49,7 +49,7 @@ export class RankingController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'Ranking Entries Fetched Successfully',
+            message: 'Entradas do ranking listada com sucesso.',
             result: result,
          });
       } catch (err) {
@@ -74,7 +74,7 @@ export class RankingController {
 
          return res.status(201).json({
             status_code: 201,
-            message: 'Ranking Entry Created Successfully',
+            message: 'Entrada no ranking criada com sucesso.',
             result: result,
          });
       } catch (err) {
@@ -98,7 +98,7 @@ export class RankingController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'Ranking Entries Deleted Successfully',
+            message: 'Entradas no ranking deletadas com sucesso.',
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);

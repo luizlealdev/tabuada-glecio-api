@@ -50,7 +50,7 @@ export class UserService {
             },
          });
 
-         if (!user) throw new NotFoundException('User Not Found');
+         if (!user) throw new NotFoundException('O usuário solicitado não foi encontrado.');
 
          return user;
       } catch (err) {
@@ -68,7 +68,7 @@ export class UserService {
          });
 
          if (existentUser != null)
-            throw new ConflictException('User already exists');
+            throw new ConflictException('Já existe um usuário com este e-mail.');
 
          return await this.prisma.user.create({
             data,
@@ -126,7 +126,7 @@ export class UserService {
             },
          });
 
-         if (!user) throw new NotFoundException('User Not Found');
+         if (!user) throw new NotFoundException('O usuário não foi encontrado.');
 
          return user;
       } catch (err) {
@@ -146,7 +146,7 @@ export class UserService {
          });
 
          if (!user) {
-            throw new UnauthorizedException('User Not Found');
+            throw new UnauthorizedException('O usuário não foi encontrado.');
          }
 
          const passwordMatches = await bcrypt.compare(
@@ -154,7 +154,7 @@ export class UserService {
             user.password,
          );
          if (!passwordMatches) {
-            throw new UnauthorizedException('Incorrect Password');
+            throw new UnauthorizedException('Senha incorreta. Tente novamente');
          }
 
          const newPasswordHash = await bcrypt.hash(data.new_password, 10);
