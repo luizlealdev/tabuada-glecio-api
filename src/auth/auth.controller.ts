@@ -58,7 +58,7 @@ export class AuthController {
       }
    }
 
-   @Post('password-reset-request')
+   @Post('password-reset/request')
    async sendCode(@Res() res: Response, @Body() data: any) {
       try {
          await this.authService.sendResetPasswordEmail(data);
@@ -78,7 +78,7 @@ export class AuthController {
    }
 
    @UseGuards(JwtTempStrategy)
-   @Post('reset/password')
+   @Post('password-reset/confirm')
    async resetPassword(
       @Headers('Authorization') auth: string,
       @Res() res: Response,
