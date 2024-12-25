@@ -18,9 +18,16 @@ Esse projeto é uma API para o jogo da tabuada do professor Glécio Raimundo da 
 
 3. Crie um arquivo chamado .env e coloque as seguintes infmações
    ```bash
-   DATABASE_URL='mysql://user:password@path.aws.com:00000/database?ssl-mode=REQUIRED'
-   JWT_SECRET='xxxxxxxxxxxxxxxxxxxxxxxxx'
-   JWT_EXPIRES_IN='1d'
+   DATABASE_URL='mysql://user:password@databaseurl:0000/database?sslmode=require'
+
+   JWT_SECRET='xxxxxxxxxxxxxxxxxxxxxxxx'
+   JWT_TEMP_SECRET='yyyyyyyyyyyyyyyyyyyyyyy'
+   JWT_EXPIRES_IN='15d'
+
+   SMTP_HOST='smtp.gmail.com'
+   SMTP_PORT='587'
+   SMTP_USER='example@gmail.com'
+   SMTP_PASS='xxx xxx xxx xxx'
    ```
 4. Rode as migrações do banco de dados:
    ```bash
@@ -39,11 +46,11 @@ Cria um novo usuário
 
 ```json
 {
-   "name": "Glécio Raimundo",
-   "email": "glecio@prof.ce.gov.br",
-   "class": "Infor 3",
-   "password": "123456",
-   "avatar_id": 22
+    "avatar_id": 1,
+    "name": "Glécio Raimundo",
+    "course_id": 1,
+    "email": "glecio@prof.ce.gov.br",
+    "password": "123456"
 }
 ```
 
@@ -51,17 +58,26 @@ Cria um novo usuário
 
 ```json
 {
-   "status_code": 201,
-   "message": "User Created Successfully",
-   "result": {
-      "user": {
-         "id": 1,
-         "name": "Glécio Raimundo",
-         "class": "Infor 3",
-         "avatar_id": 22
-      },
-      "token": "eyJhbGCiOiJIUzI1NiIOInR5cCI6IkpXVCJ9.eyJzdWIiOjIyLCJlbWFpbCI6ImdsZWNpb0Bwcm9mLmNlLmdvdi5iciIsImlhdCI6MTcyODc3OTI2OSwiZXhwIjoxNzI5OTg4ODY5fQ.6nH3WyFaiPKppQogRY3vUT_zl6StGuh14x_9QxjUqmI"
-   }
+    "status_code": 201,
+    "message": "Usuário criado com sucesso.",
+    "result": {
+        "user": {
+            "id": 7,
+            "name": "Glécio Raimundo",
+            "course_id": 1,
+            "course": {
+                "name": "Informática"
+            },
+            "avatar_id": 1,
+            "avatar": {
+                "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_1.webp",
+                "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_1.webp",
+                "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_1.webp"
+            },
+            "is_admin": false
+        },
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiZ2zDqWNpb0Bwcm9mLmNlLmdvdi5iciIsImlhdCI6MTczNTE0NzI4OSwiZXhwIjoxNzM2NDQzMjg5fQ.Nlx64JgXFTvX34yahIYCoVGY_6yqu8B7InYmgwFxL4g"
+    }
 }
 ```
 
@@ -82,20 +98,88 @@ Autentica um usuário e retorna um token JWT
 
 ```json
 {
-   "status_code": 201,
-   "message": "User Logged Successfully",
-   "result": {
-      "user": {
-         "id": 1,
-         "name": "Glécio Raimundo",
-         "class": "Infor 3",
-         "avatar_id": 22,
-         "is_admin": true
-      },
-      "token": "eyJhbGCiOiJIUzI1NiIOInR5cCI6IkpXVCJ9.eyJzdWIiOjIyLCJlbWFpbCI6ImdsZWNpb0Bwcm9mLmNlLmdvdi5iciIsImlhdCI6MTcyODc3OTI2OSwiZXhwIjoxNzI5OTg4ODY5fQ.6nH3WyFaiPKppQogRY3vUT_zl6StGuh14x_9QxjUqmI"
-   }
+    "status_code": 200,
+    "message": "Usuário logado com sucesso.",
+    "result": {
+        "user": {
+            "id": 7,
+            "name": "Glécio Raimundo",
+            "course_id": 1,
+            "course": {
+                "name": "Informática"
+            },
+            "avatar_id": 1,
+            "avatar": {
+                "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_1.webp",
+                "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_1.webp",
+                "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_1.webp"
+            },
+            "is_admin": false
+        },
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiZ2zDqWNpb0Bwcm9mLmNlLmdvdi5iciIsImlhdCI6MTczNTE0NzM2NCwiZXhwIjoxNzM2NDQzMzY0fQ.gUSMlRdCvYcdSNpDpIVJHO6IfPqRb65dMowAWDKJKso"
+    }
 }
 ```
+
+#### `POST /api/auth/password-reset/request`
+
+Envia um e-mail que será usada para resetar a senha do usuário
+
+-  _Request_
+
+```json
+{
+   "email": "glecio@prof.ce.gov.br",
+}
+```
+
+-  _Response_
+
+```json
+{
+    "status_code": 200,
+    "message": "Email enviado com sucesso. Verifique sua caixa de entrada."
+}
+```
+
+![Screenshot from gmail](https://i.imgur.com/SgmzB8x.png)
+
+#### `POST /api/auth/password-reset/confirm`
+
+Recebe a nova senha do usuário e muda ela no banco de dados
+
+-  _Headers_
+
+```
+Authorization: Bearer {token}
+```
+> [!NOTE]  
+> O token JWT usado nesta requisição é um token temporário (5 minutos) que é enviado no link do e-mail do usuário, como mostado abaixo.
+
+```
+https://tabuadadoglecio.vercel.app/password-reset/confirm/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQsImVtYWlsIjoiY29udGF0ZXN0ZXNlaWxhMTJAZ21haWwuY29tIiwiaWF0IjoxNzM1MTQ5ODY5LCJleHAiOjE3MzUxNTAxNjl9.dF6FCotMzxR32giSgfp5ptbld4rJxEvvDOCJhOIV2mA
+```
+
+> [!TIP]
+> No front-end, mantenha as rotas para redefinir a senha do usuário como `/reset-password/request` para a solicitação e `/reset-password/confirm` para o envio da nova senha.
+
+-  _Request_
+
+```json
+{
+   "new_password": "glecio-3.1415",
+}
+```
+
+-  _Response_
+
+```json
+{
+    "status_code": 200,
+    "message": "Senha resetada com sucesso."
+}
+```
+
 
 ---
 
@@ -115,23 +199,25 @@ Authorization: Bearer {token}
 
 ```json
 {
-   "status_code": 200,
-   "message": "User Fetched Successfully",
-   "result": {
-      "id": 1,
-      "name": "Glécio Raimundo",
-      "class": "Infor 3",
-      "max_score": 48,
-      "created_at": "2024-10-19T18:30:11.582Z",
-      "is_admin": true,
-      "avatar": {
-         "id": 22,
-         "path_default": "<API_URL>/api/v1/avatars/default/22",
-         "path_128px": "<API_URL>/api/v1/avatars/256/22",
-         "path_256px": "<API_URL>/api/v1/avatars/128/22",
-         "is_special": false
-      }
-   }
+    "status_code": 200,
+    "message": "Informações do usuário consultadas com sucesso.",
+    "result": {
+        "id": 1,
+        "name": "Glécio Raimundo",
+        "max_score": 0,
+        "created_at": "2024-12-25T17:21:28.278Z",
+        "is_admin": false,
+        "course": {
+            "id": 1,
+            "name": "Informática"
+        },
+        "avatar": {
+            "id": 1,
+            "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_1.webp",
+            "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_1.webp",
+            "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_1.webp"
+        }
+    }
 }
 ```
 
@@ -149,9 +235,9 @@ Authorization: Bearer {token}
 
 ```json
 {
-   "name": "Glécio Prof",
-   "class": "Math",
-   "avatar_id": 30
+    "name": "Glécio Prof",
+    "avatar_id": 10,
+    "course_id": 2
 }
 ```
 
@@ -159,20 +245,22 @@ Authorization: Bearer {token}
 
 ```json
 {
-   "status_code": 200,
-   "message": "User Updated Successfully",
-   "result": {
-      "id": 1,
-      "name": "Glécio Prof",
-      "class": "Math",
-      "avatar": {
-         "id": 30,
-         "path_default": "<API_URL>/api/v1/avatars/default/30",
-         "path_128px": "<API_URL>/api/v1/avatars/256/30",
-         "path_256px": "<API_URL>/api/v1/avatars/128/30",
-         "is_special": false
-      }
-   }
+    "status_code": 200,
+    "message": "Informações do usuário atualizadas com sucesso.",
+    "result": {
+        "id": 7,
+        "name": "Glécio Prof",
+        "course": {
+            "id": 2,
+            "name": "Enfermagem"
+        },
+        "avatar": {
+            "id": 10,
+            "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_10.webp",
+            "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_10.webp",
+            "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_10.webp"
+        }
+    }
 }
 ```
 
@@ -199,8 +287,8 @@ Authorization: Bearer {token}
 
 ```json
 {
-   "status_code": 200,
-   "message": "User Password Updated Successfully"
+    "status_code": 200,
+    "message": "Senha do usuário atualizada com sucesso."
 }
 ```
 
@@ -216,45 +304,84 @@ Retorna a lista de todos os avatars
 
 ```json
 {
-   "status_code": 200,
-   "message": "Avatars List Fetched Sucessfully",
-   "result": [
-      {
-         "id": 1,
-         "path_default": "<API_URL>/api/v1/avatars/default/1",
-         "path_128px": "<API_URL>/api/v1/avatars/256/1",
-         "path_256px": "<API_URL>/api/v1/avatars/128/1",
-         "is_special": false
-      },
-      {
-         "id": 2,
-         "path_default": "<API_URL>/api/v1/avatars/default/2",
-         "path_128px": "<API_URL>/api/v1/avatars/256/2",
-         "path_256px": "<API_URL>/api/v1/avatars/128/2",
-         "is_special": false
-      },
-      {
-         "id": 3,
-         "path_default": "<API_URL>/api/v1/avatars/default/3",
-         "path_128px": "<API_URL>/api/v1/avatars/256/3",
-         "path_256px": "<API_URL>/api/v1/avatars/128/3",
-         "is_special": false
-      },
-      {
-         "id": 4,
-         "path_default": "<API_URL>/api/v1/avatars/default/4",
-         "path_128px": "<API_URL>/api/v1/avatars/256/4",
-         "path_256px": "<API_URL>/api/v1/avatars/128/4",
-         "is_special": false
-      },
-      {
-         "id": 5,
-         "path_default": "<API_URL>/api/v1/avatars/default/5",
-         "path_128px": "<API_URL>/api/v1/avatars/256/5",
-         "path_256px": "<API_URL>/api/v1/avatars/128/5",
-         "is_special": false
-      }
-   ]
+    "status_code": 200,
+    "message": "Avatares listados com sucesso.",
+    "result": [
+        {
+            "id": 1,
+            "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_1.webp",
+            "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_1.webp",
+            "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_1.webp"
+        },
+        {
+            "id": 2,
+            "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_2.webp",
+            "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_2.webp",
+            "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_2.webp"
+        },
+        {
+            "id": 3,
+            "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_3.webp",
+            "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_3.webp",
+            "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_3.webp"
+        },
+        {
+            "id": 4,
+            "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_4.webp",
+            "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_4.webp",
+            "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_4.webp"
+        },
+        {
+            "id": 5,
+            "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_5.webp",
+            "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_5.webp",
+            "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_5.webp"
+        }
+        //... //
+    ]
+}
+```
+
+---
+
+### Cursos
+
+#### `GET /api/v1/avatars/all`
+
+Retorna a lista de todos os cursos
+
+-  _Response_
+```json 
+{
+    "status_code": 200,
+    "message": "Cursos listados com sucesso.",
+    "result": [
+        {
+            "id": 1,
+            "name": "Informática",
+            "is_special": false,
+            "is_active": true
+        },
+        {
+            "id": 2,
+            "name": "Enfermagem",
+            "is_special": false,
+            "is_active": true
+        },
+        {
+            "id": 2,
+            "name": "Sist. Energia Renovável",
+            "is_special": false,
+            "is_active": true
+        },
+        {
+            "id": 2,
+            "name": "Guia de Turismo",
+            "is_special": false,
+            "is_active": true
+        },
+        //...//
+    ]
 }
 ```
 
@@ -284,12 +411,12 @@ Authorization: Bearer {token}
 
 ```json
 {
-   "status_code": 201,
-   "message": "Ranking Entry Created Successfully",
-   "result": {
-      "score": 50,
-      "user_id": 23
-   }
+    "status_code": 201,
+    "message": "Entrada no ranking criada com sucesso.",
+    "result": {
+        "score": 30,
+        "user_id": 1
+    }
 }
 ```
 
@@ -307,46 +434,64 @@ Authorization: Bearer {token}
 
 ```json
 {
-   "status_code": 200,
-   "message": "Ranking Entries Fetched Successfully",
-   "result": [
-      {
-         "id": 3,
-         "score": 60,
-         "user": {
-            "id": 19,
-            "name": "Hiago",
-            "class": "Inf 3"
-         }
-      },
-      {
-         "id": 5,
-         "score": 55,
-         "user": {
-            "id": 21,
-            "name": "Luiz",
-            "class": "Inf"
-         }
-      },
-      {
-         "id": 6,
-         "score": 50,
-         "user": {
-            "id": 23,
-            "name": "Glécio Prof",
-            "class": "Math"
-         }
-      },
-      {
-         "id": 2,
-         "score": 25,
-         "user": {
-            "id": 18,
-            "name": "Meteus Ferreira",
-            "class": "Guia 1"
-         }
-      }
-   ]
+    "status_code": 200,
+    "message": "Entradas do ranking listada com sucesso.",
+    "result": [
+        {
+            "id": 2,
+            "score": 24,
+            "user": {
+                "id": 4,
+                "name": "Hiago",
+                "course_id": 1,
+                "course": {
+                    "name": "Informática"
+                },
+                "avatar_id": 30,
+                "avatar": {
+                    "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_30.webp",
+                    "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_30.webp",
+                    "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_30.webp"
+                }
+            }
+        },
+        {
+            "id": 2,
+            "score": 53,
+            "user": {
+                "id": 6,
+                "name": "Mateus Ferreira",
+                "course_id": 1,
+                "course": {
+                    "name": "Informática"
+                },
+                "avatar_id": 23,
+                "avatar": {
+                    "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_23.webp",
+                    "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_23.webp",
+                    "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_23.webp"
+                }
+            }
+        },
+        {
+            "id": 3,
+            "score": 30,
+            "user": {
+                "id": 1,
+                "name": "Glécio Prof",
+                "course_id": 2,
+                "course": {
+                    "name": "Enfermagem"
+                },
+                "avatar_id": 10,
+                "avatar": {
+                    "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_10.webp",
+                    "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_10.webp",
+                    "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_10.webp"
+                }
+            }
+        }
+    ]
 }
 ```
 
@@ -364,28 +509,64 @@ Authorization: Bearer {token}
 
 ```json
 {
-   "status_code": 200,
-   "message": "Ranking Entries Fetched Successfully",
-   "result": [
-      {
-         "id": 3,
-         "score": 60,
-         "user": {
-            "id": 19,
-            "name": "Hiago",
-            "class": "Inf 3"
-         }
-      },
-      {
-         "id": 5,
-         "score": 50,
-         "user": {
-            "id": 21,
-            "name": "Glecio Prof",
-            "class": "Math"
-         }
-      }
-   ]
+    "status_code": 200,
+    "message": "Entradas do ranking listada com sucesso.",
+    "result": [
+        {
+            "id": 2,
+            "score": 24,
+            "user": {
+                "id": 4,
+                "name": "Hiago",
+                "course_id": 1,
+                "course": {
+                    "name": "Informática"
+                },
+                "avatar_id": 30,
+                "avatar": {
+                    "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_30.webp",
+                    "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_30.webp",
+                    "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_30.webp"
+                }
+            }
+        },
+        {
+            "id": 2,
+            "score": 53,
+            "user": {
+                "id": 6,
+                "name": "Mateus Ferreira",
+                "course_id": 1,
+                "course": {
+                    "name": "Informática"
+                },
+                "avatar_id": 23,
+                "avatar": {
+                    "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_23.webp",
+                    "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_23.webp",
+                    "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_23.webp"
+                }
+            }
+        },
+        {
+            "id": 3,
+            "score": 30,
+            "user": {
+                "id": 1,
+                "name": "Glécio Prof",
+                "course_id": 2,
+                "course": {
+                    "name": "Enfermagem"
+                },
+                "avatar_id": 10,
+                "avatar": {
+                    "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_10.webp",
+                    "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_10.webp",
+                    "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_10.webp"
+                }
+            }
+        }
+    ]
 }
 ```
 
@@ -407,7 +588,7 @@ Authorization: Bearer {token}
 ```json
 {
    "status_code": 200,
-   "message": "Ranking Entries Deleted Successfully"
+   "message": "Entradas no ranking deletadas com sucesso."
 }
 ```
 
