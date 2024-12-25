@@ -119,6 +119,7 @@ export class AuthService {
             select: {
                id: true,
                email: true,
+               name: true
             },
          });
 
@@ -129,7 +130,7 @@ export class AuthService {
                secret: process.env.JWT_TEMP_SECRET,
             });
 
-            this.mailService.sendResetPasswordEmail(data.email, tempJwtToken);
+            this.mailService.sendResetPasswordEmail(data.email, user.name, tempJwtToken);
          }
       } catch (err) {
          console.error(err);

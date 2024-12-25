@@ -138,11 +138,11 @@ Envia um e-mail que será usada para resetar a senha do usuário
 ```json
 {
     "status_code": 200,
-    "message": "Email enviado com sucesso. Verifique sua caixa de entrada."
+    "message": "E-mail enviado com sucesso. Verifique sua caixa de entrada."
 }
 ```
 
-![Screenshot from gmail](https://i.imgur.com/SgmzB8x.png)
+![Screenshot from gmail](https://i.imgur.com/NMpkk3O.png)
 
 #### `POST /api/auth/password-reset/confirm`
 

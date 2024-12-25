@@ -65,7 +65,7 @@ export class AuthController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'Email enviado com sucesso. Verifique sua caixa de entrada.',
+            message: 'E-mail enviado com sucesso. Verifique sua caixa de entrada.',
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
