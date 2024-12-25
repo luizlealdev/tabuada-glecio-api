@@ -13,6 +13,8 @@ export class CoursesService {
                is_active: true,
             },
          });
+
+         return courses;
       } catch (err) {
          console.error(err);
          throw err;

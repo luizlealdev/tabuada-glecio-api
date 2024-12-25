@@ -1,6 +1,3 @@
-import { Res } from '@nestjs/common';
-import { Response } from 'express';
-
 export class CatchException {
    catch(err: any) {
       const status = err?.status || 500;

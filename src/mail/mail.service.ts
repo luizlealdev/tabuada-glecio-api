@@ -23,7 +23,7 @@ export class MailService {
             from: `Tabuada do Glécio <${process.env.SMTP_USER}>`,
             to: email,
             subject: 'Pedido de redefinição de senha',
-            html: `Clique para <a href="https://tabuadadoglecio.vercel.app/reset-password/${token}">Redefinir senha</a>
+            html: `Clique para <a href="${process.env.SITE_URL}/password-reset/confirm/${token}">Redefinir senha</a>
             
             <p>O código é válido por 5 minutos<p>`,
          });
