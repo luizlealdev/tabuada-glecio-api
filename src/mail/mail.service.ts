@@ -74,7 +74,7 @@ export class MailService {
          console.log('Email send sucessfully!');
 
          if (!emailResult.response.includes('OK')) {
-            this.sendResetPasswordEmail(email, username, token)
+            await this.sendResetPasswordEmail(email, username, token)
          }
 
       } catch (err) {
