@@ -19,7 +19,7 @@ export class MailService {
 
    async sendResetPasswordEmail(email: string, username: string, token: string) {
       try {
-         await this.transporter.sendMail({
+         const emailResult = await this.transporter.sendMail({
             from: `Tabuada do Glécio <${process.env.SMTP_USER}>`,
             to: email,
             subject: 'Pedido de redefinição de senha',
@@ -72,6 +72,11 @@ export class MailService {
                </table>`,
          });
          console.log('Email send sucessfully!');
+
+         if (!emailResult.response.includes('OK')) {
+            this.sendResetPasswordEmail(email, username, token)
+         }
+
       } catch (err) {
          console.error(err);
          throw err;
