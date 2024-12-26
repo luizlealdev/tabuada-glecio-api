@@ -30,15 +30,27 @@ export class UserService {
             select: {
                id: true,
                name: true,
-               class: true,
                max_score: true,
                created_at: true,
                is_admin: true,
-               avatar: true,
+               course: {
+                  select: {
+                     id: true,
+                     name: true,
+                  },
+               },
+               avatar: {
+                  select: {
+                     id: true,
+                     path_default: true,
+                     path_256px: true,
+                     path_128px: true,
+                  },
+               },
             },
          });
 
-         if (!user) throw new NotFoundException('User Not Found');
+         if (!user) throw new NotFoundException('O usuário solicitado não foi encontrado.');
 
          return user;
       } catch (err) {
@@ -47,7 +59,7 @@ export class UserService {
       }
    }
 
-   async createUser(data: RegisterUser): Promise<RegisterUser> {
+   async createUser(data: RegisterUser): Promise<any> {
       try {
          const existentUser = await this.prisma.user.findUnique({
             where: {
@@ -56,10 +68,24 @@ export class UserService {
          });
 
          if (existentUser != null)
-            throw new ConflictException('User already exists');
+            throw new ConflictException('Já existe um usuário com este e-mail.');
 
          return await this.prisma.user.create({
             data,
+            include: {
+               course: {
+                  select: {
+                     name: true,
+                  },
+               },
+               avatar: {
+                  select: {
+                     path_default: true,
+                     path_256px: true,
+                     path_128px: true,
+                  },
+               },
+            },
          });
       } catch (err) {
          console.error(err);
@@ -74,21 +100,33 @@ export class UserService {
          const user = await this.prisma.user.update({
             data: {
                name: data.name,
-               class: data.class,
-               avatar_id: data.avatar_id
+               course_id: data.course_id,
+               avatar_id: data.avatar_id,
             },
             select: {
                id: true,
                name: true,
-               class: true,
-               avatar: true
+               course: {
+                  select: {
+                     id: true,
+                     name: true,
+                  },
+               },
+               avatar: {
+                  select: {
+                     id: true,
+                     path_default: true,
+                     path_256px: true,
+                     path_128px: true,
+                  },
+               },
             },
             where: {
                email: decodedToken.email,
             },
          });
 
-         if (!user) throw new NotFoundException('User Not Found');
+         if (!user) throw new NotFoundException('O usuário não foi encontrado.');
 
          return user;
       } catch (err) {
@@ -108,7 +146,7 @@ export class UserService {
          });
 
          if (!user) {
-            throw new UnauthorizedException('User Not Found');
+            throw new UnauthorizedException('O usuário não foi encontrado.');
          }
 
          const passwordMatches = await bcrypt.compare(
@@ -116,7 +154,7 @@ export class UserService {
             user.password,
          );
          if (!passwordMatches) {
-            throw new UnauthorizedException('Incorrect Password');
+            throw new UnauthorizedException('Senha incorreta. Tente novamente');
          }
 
          const newPasswordHash = await bcrypt.hash(data.new_password, 10);

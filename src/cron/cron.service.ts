@@ -8,7 +8,7 @@ export class CronService {
 
   @Cron(CronExpression.EVERY_WEEK)
   async handleCron() {
-    console.log('Deleting unecessary ranking entries')
+    console.log('Application: Deleting unecessary ranking entries')
 
     const top100Entries = await this.prisma.ranking_global.findMany({
       take: 100,

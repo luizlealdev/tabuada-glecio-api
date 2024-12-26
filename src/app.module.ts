@@ -14,15 +14,19 @@ import { CronService } from './cron/cron.service';
 import { UserController } from './user/user.controller';
 import { AvatarsService } from './avatars/avatars.service';
 import { AvatarsController } from './avatars/avatars.controller';
+import { CoursesController } from './courses/courses.controller';
+import { CoursesService } from './courses/courses.service';
+import { MailModule } from './mail/mail.module';
 
 @Module({
-   imports: [AuthModule, PrismaModule, UserModule, ScheduleModule.forRoot()],
+   imports: [AuthModule, PrismaModule, UserModule, MailModule, ScheduleModule.forRoot()],
    controllers: [
       AppController,
       AuthController,
       RankingController,
       UserController,
       AvatarsController,
+      CoursesController
    ],
    providers: [
       AppService,
@@ -31,6 +35,7 @@ import { AvatarsController } from './avatars/avatars.controller';
       RankingService,
       CronService,
       AvatarsService,
+      CoursesService,
    ],
 })
 export class AppModule {}

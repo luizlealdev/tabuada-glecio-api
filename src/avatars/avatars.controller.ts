@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { AvatarsService } from './avatars.service';
-import { CatchException } from 'src/utils/catch-exception';
+import { CatchException } from '../utils/catch-exception';
 import { join } from 'path';
 
 @Controller('api/v1/avatars')
@@ -17,7 +17,7 @@ export class AvatarsController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'Avatars List Fetched Sucessfully',
+            message: 'Avatares listados com sucesso.',
             result: avatars,
          });
       } catch (err) {

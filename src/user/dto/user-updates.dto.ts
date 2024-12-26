@@ -5,9 +5,9 @@ export class UpdateUser {
    @IsNotEmpty()
    name: string;
 
-   @IsString()
+   @IsNumber()
    @IsNotEmpty()
-   class: string;
+   course_id: number;
 
    @IsNumber()
    @IsNotEmpty()

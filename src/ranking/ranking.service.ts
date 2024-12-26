@@ -41,8 +41,20 @@ export class RankingService {
                   select: {
                      id: true,
                      name: true,
-                     class: true,
-                     avatar: true,
+                     course_id: true,
+                     course: {
+                        select: {
+                           name: true,
+                        }
+                     },
+                     avatar_id: true,
+                     avatar: {
+                        select: {
+                           path_default: true,
+                           path_256px: true,
+                           path_128px: true
+                        }
+                     },
                   },
                },
             },
@@ -76,8 +88,20 @@ export class RankingService {
                select: {
                   id: true,
                   name: true,
-                  class: true,
-                  avatar: true,
+                  course_id: true,
+                  course: {
+                     select: {
+                        name: true,
+                     }
+                  },
+                  avatar_id: true,
+                  avatar: {
+                     select: {
+                        path_default: true,
+                        path_256px: true,
+                        path_128px: true
+                     }
+                  },
                },
             },
          },
@@ -162,7 +186,7 @@ export class RankingService {
          });
 
          if (!admin || !admin.is_admin)
-            throw new UnauthorizedException('Unauthorized to reset the rank');
+            throw new UnauthorizedException('Você não tem permissão para acessar este recurso.');
 
          await this.prisma.ranking.deleteMany();
       } catch (err) {
