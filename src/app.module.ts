@@ -17,16 +17,25 @@ import { AvatarsController } from './avatars/avatars.controller';
 import { CoursesController } from './courses/courses.controller';
 import { CoursesService } from './courses/courses.service';
 import { MailModule } from './mail/mail.module';
+import { RateLimiterGuard, RateLimiterModule } from 'nestjs-rate-limiter';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
-   imports: [AuthModule, PrismaModule, UserModule, MailModule, ScheduleModule.forRoot()],
+   imports: [
+      AuthModule,
+      PrismaModule,
+      UserModule,
+      MailModule,
+      RateLimiterModule,
+      ScheduleModule.forRoot(),
+   ],
    controllers: [
       AppController,
       AuthController,
       RankingController,
       UserController,
       AvatarsController,
-      CoursesController
+      CoursesController,
    ],
    providers: [
       AppService,
@@ -36,6 +45,10 @@ import { MailModule } from './mail/mail.module';
       CronService,
       AvatarsService,
       CoursesService,
+      {
+         provide: APP_GUARD,
+         useClass: RateLimiterGuard
+      }
    ],
 })
 export class AppModule {}
