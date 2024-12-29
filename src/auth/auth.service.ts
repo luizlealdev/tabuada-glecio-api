@@ -10,7 +10,6 @@ import { UserService } from '../user/user.service';
 import { RegisterUser, LoginUser } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { MailService } from '../mail/mail.service';
-import { IntUtils } from '../utils/int-utils';
 import { TokenUtils } from 'src/utils/token-utils';
 
 @Injectable()
@@ -22,7 +21,6 @@ export class AuthService {
       private mailService: MailService,
    ) {}
 
-   intUtils = new IntUtils();
    tokenUtils = new TokenUtils(this.jwtService);
 
    async register(data: RegisterUser): Promise<any> {
@@ -130,7 +128,7 @@ export class AuthService {
                secret: process.env.JWT_TEMP_SECRET,
             });
 
-            this.mailService.sendResetPasswordEmail(data.email, user.name, tempJwtToken);
+            await this.mailService.sendResetPasswordEmail(data.email, user.name, tempJwtToken);
          }
       } catch (err) {
          console.error(err);

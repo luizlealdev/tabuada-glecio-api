@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class MailService {
       this.transporter = nodemailer.createTransport({
          host: process.env.SMTP_HOST,
          port: Number(process.env.SMTP_PORT),
-         secure: false,
+         secure: true,
          auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
@@ -17,7 +17,13 @@ export class MailService {
       });
    }
 
-   async sendResetPasswordEmail(email: string, username: string, token: string) {
+   async sendResetPasswordEmail(
+      email: string,
+      username: string,
+      token: string,
+      attemps = 0,
+      maxAttemps = 10,
+   ) {
       try {
          const emailResult = await this.transporter.sendMail({
             from: `Tabuada do Glécio <${process.env.SMTP_USER}>`,
@@ -72,11 +78,26 @@ export class MailService {
                </table>`,
          });
          console.log('Email send sucessfully!');
+         console.log(emailResult);
 
          if (!emailResult.response.includes('OK')) {
-            await this.sendResetPasswordEmail(email, username, token)
+            if (attemps <= maxAttemps) {
+               console.warn(
+                  `Email send failure. Trying again ${attemps + 1} times`,
+               );
+               await this.sendResetPasswordEmail(
+                  email,
+                  username,
+                  token,
+                  attemps + 1,
+                  maxAttemps,
+               );
+            } else {
+               throw new InternalServerErrorException(
+                  'Falha ao enviar email. Tente novamente mais tarde.',
+               );
+            }
          }
-
       } catch (err) {
          console.error(err);
          throw err;
