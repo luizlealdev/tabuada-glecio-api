@@ -154,7 +154,7 @@ Recebe a nova senha do usuário e muda ela no banco de dados
 Authorization: Bearer {token}
 ```
 > [!NOTE]  
-> O token JWT usado nesta requisição é um token temporário (5 minutos) que é enviado no link do e-mail do usuário, como mostado abaixo.
+> O token JWT usado nesta requisição é um token temporário (5 minutos) que é enviado no link do botão do e-mail do usuário, como mostado abaixo.
 
 ```
 https://tabuadadoglecio.vercel.app/password-reset/confirm/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQsImVtYWlsIjoiY29udGF0ZXN0ZXNlaWxhMTJAZ21haWwuY29tIiwiaWF0IjoxNzM1MTQ5ODY5LCJleHAiOjE3MzUxNTAxNjl9.dF6FCotMzxR32giSgfp5ptbld4rJxEvvDOCJhOIV2mA
@@ -298,7 +298,7 @@ Authorization: Bearer {token}
 
 #### `GET /api/v1/avatars/all`
 
-Retorna a lista de todos os avatars
+Retorna a lista de todos os avatares
 
 -  _Response_
 
@@ -342,13 +342,57 @@ Retorna a lista de todos os avatars
 }
 ```
 
+#### `GET /api/v1/avatars/id/:id`
+
+Retorna as informações de um avatar específico
+
+-  _Headers_ ``(Opcional, envie o token na requisição caso o usuário tenha acesso de Admin)``
+
+```
+Authorization: Bearer {token}
+```
+
+-  _Response_
+
+```json
+{
+    "status_code": 200,
+    "message": "Avatar buscado com sucesso.",
+    "result": [
+        {
+            "id": 1,
+            "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_1.webp",
+            "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_1.webp",
+            "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_1.webp"
+        }
+    ]
+}
+```
+
+#### `GET /api/v1/avatars/:size/:id`
+
+Retorna a imagem do avatar
+
+-  _Response_
+
+![Default Avatar](https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_1.webp)
+
+> [!TIP]
+> Os tamanhos disponíveis (:size) são `128`, `256` e `default`.
+
 ---
 
 ### Cursos
 
-#### `GET /api/v1/avatars/all`
+#### `GET /api/v1/courses/all` 
 
-Retorna a lista de todos os cursos
+Retorna a lista de todos os cursos/turmas
+
+-  _Headers_ ``(Opcional, envie o token na requisição caso o usuário tenha acesso de Admin)``
+
+```
+Authorization: Bearer {token}
+```
 
 -  _Response_
 ```json 
@@ -381,6 +425,33 @@ Retorna a lista de todos os cursos
             "is_active": true
         },
         //...//
+    ]
+}
+```
+
+#### `GET /api/v1/courses/id/:id` 
+
+
+Retorna as informações de um curso/turma específica
+
+-  _Headers_ ``(Opcional, envie o token na requisição caso o usuário tenha acesso de Admin)``
+
+```
+Authorization: Bearer {token}
+```
+
+-  _Response_
+```json 
+{
+    "status_code": 200,
+    "message": "Curso buscado com sucesso.",
+    "result": [
+        {
+            "id": 15,
+            "name": "Informática 3",
+            "is_special": false,
+            "is_active": true
+        }
     ]
 }
 ```
