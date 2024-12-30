@@ -44,7 +44,7 @@ export class AuthService {
                avatar: user.avatar,
                is_admin: user.is_admin,
             },
-            token: this.jwtService.sign({ sub: user.id, email: user.email }),
+            access_token: this.jwtService.sign({ sub: user.id, email: user.email }),
          };
       } catch (err) {
          console.error(err);
@@ -94,7 +94,7 @@ export class AuthService {
                avatar: user.avatar,
                is_admin: user.is_admin,
             },
-            token: this.jwtService.sign({
+            access_token: this.jwtService.sign({
                sub: user.id,
                email: (await user).email,
             }),

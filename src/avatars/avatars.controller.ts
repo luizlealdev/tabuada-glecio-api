@@ -18,7 +18,7 @@ export class AvatarsController {
          return res.status(200).json({
             status_code: 200,
             message: 'Avatares listados com sucesso.',
-            result: avatars,
+            data: avatars,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -42,7 +42,7 @@ export class AvatarsController {
          return res.status(200).json({
             status_code: 200,
             message: 'Avatar buscado com sucesso.',
-            result: avatar,
+            data: avatar,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);

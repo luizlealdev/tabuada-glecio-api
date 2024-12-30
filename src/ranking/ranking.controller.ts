@@ -25,12 +25,12 @@ export class RankingController {
    @Get('normal')
    async getAllRankingEntries(@Res() res: Response) {
       try {
-         const result = await this.rankingService.getAllRankingEntries();
+         const entries = await this.rankingService.getAllRankingEntries();
 
          return res.status(200).json({
             status_code: 200,
             message: 'Entradas do ranking listada com sucesso.',
-            result: result,
+            data: entries,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -46,12 +46,12 @@ export class RankingController {
    @Get('global')
    async getAllGlobalRankingEntries(@Res() res: Response) {
       try {
-         const result = await this.rankingService.getAllGlobalRankEntries();
+         const entries = await this.rankingService.getAllGlobalRankEntries();
 
          return res.status(200).json({
             status_code: 200,
             message: 'Entradas do ranking listada com sucesso.',
-            result: result,
+            data: entries,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -76,12 +76,12 @@ export class RankingController {
       @Body() data: RankingEntry,
    ) {
       try {
-         const result = await this.rankingService.setRankingEntry(auth, data);
+         const entry = await this.rankingService.setRankingEntry(auth, data);
 
          return res.status(201).json({
             status_code: 201,
             message: 'Entrada no ranking criada com sucesso.',
-            result: result,
+            data: entry,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);

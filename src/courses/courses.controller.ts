@@ -20,7 +20,7 @@ export class CoursesController {
          return res.status(200).json({
             status_code: 200,
             message: 'Cursos listados com sucesso.',
-            result: courses,
+            data: courses,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -44,7 +44,7 @@ export class CoursesController {
          return res.status(200).json({
             status_code: 200,
             message: 'Curso buscado com sucesso.',
-            result: course,
+            data: course,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);

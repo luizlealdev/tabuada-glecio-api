@@ -27,12 +27,12 @@ export class AuthController {
    })
    async register(@Res() res: Response, @Body() data: RegisterUser) {
       try {
-         const result = await this.authService.register(data);
+         const user = await this.authService.register(data);
 
          return res.status(201).json({
             status_code: 201,
             message: 'Usuário criado com sucesso.',
-            result: result,
+            data: user,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -52,12 +52,12 @@ export class AuthController {
    })
    async login(@Res() res: Response, @Body() data: LoginUser) {
       try {
-         const result = await this.authService.login(data);
+         const user = await this.authService.login(data);
 
          return res.status(200).json({
             status_code: 200,
             message: 'Usuário logado com sucesso.',
-            result: result,
+            data: user,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);

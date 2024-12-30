@@ -25,12 +25,12 @@ export class UserController {
    @UseGuards(JwtAuthGuard)
    async getUser(@Param('id') userId, @Res() res: Response) {
       try {
-         const result = await this.userService.getUser(Number(userId));
+         const user = await this.userService.getUser(Number(userId));
 
          return res.status(200).json({
             status_code: 200,
             message: 'Informações do usuário consultadas com sucesso.',
-            result: result,
+            data: user,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -55,12 +55,12 @@ export class UserController {
       @Body() data: UpdateUser,
    ) {
       try {
-         const result = await this.userService.updateUser(auth, data);
+         const user = await this.userService.updateUser(auth, data);
 
          return res.status(200).json({
             status_code: 200,
             message: 'Informações do usuário atualizadas com sucesso.',
-            result: result,
+            data: user,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
