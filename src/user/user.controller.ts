@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../auth/jwt/jwt.auth.guard';
 import { CatchException } from 'src/utils/catch-exception';
 import { UserService } from './user.service';
 import { UpdatePaswordUser, UpdateUser } from './dto/user-updates.dto';
+import { RateLimit } from 'nestjs-rate-limiter';
 
 @Controller('api/v1/user')
 export class UserController {
@@ -24,12 +25,12 @@ export class UserController {
    @UseGuards(JwtAuthGuard)
    async getUser(@Param('id') userId, @Res() res: Response) {
       try {
-         const result = await this.userService.getUser(Number(userId));
+         const user = await this.userService.getUser(Number(userId));
 
          return res.status(200).json({
             status_code: 200,
             message: 'Informações do usuário consultadas com sucesso.',
-            result: result,
+            data: user,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -41,6 +42,11 @@ export class UserController {
       }
    }
 
+   @RateLimit({
+      points: 3,
+      duration: 20,
+      errorMessage: 'Muitas requisições. Tente novamente mais tarde',
+   })
    @Put('update')
    @UseGuards(JwtAuthGuard)
    async updateUser(
@@ -49,12 +55,12 @@ export class UserController {
       @Body() data: UpdateUser,
    ) {
       try {
-         const result = await this.userService.updateUser(auth, data);
+         const user = await this.userService.updateUser(auth, data);
 
          return res.status(200).json({
             status_code: 200,
             message: 'Informações do usuário atualizadas com sucesso.',
-            result: result,
+            data: user,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -66,6 +72,11 @@ export class UserController {
       }
    }
 
+   @RateLimit({
+      points: 1,
+      duration: 10,
+      errorMessage: 'Muitas requisições. Tente novamente mais tarde',
+   })
    @Put('update/password')
    @UseGuards(JwtAuthGuard)
    async updateUserPassword(

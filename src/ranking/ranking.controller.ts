@@ -13,6 +13,7 @@ import { RankingService } from './ranking.service';
 import { Response } from 'express';
 import { RankingEntry } from './dto/ranking-entry.dto';
 import { CatchException } from '../utils/catch-exception';
+import { RateLimit } from 'nestjs-rate-limiter';
 
 @Controller('api/v1/ranking')
 export class RankingController {
@@ -24,12 +25,12 @@ export class RankingController {
    @Get('normal')
    async getAllRankingEntries(@Res() res: Response) {
       try {
-         const result = await this.rankingService.getAllRankingEntries();
+         const entries = await this.rankingService.getAllRankingEntries();
 
          return res.status(200).json({
             status_code: 200,
             message: 'Entradas do ranking listada com sucesso.',
-            result: result,
+            data: entries,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -45,12 +46,12 @@ export class RankingController {
    @Get('global')
    async getAllGlobalRankingEntries(@Res() res: Response) {
       try {
-         const result = await this.rankingService.getAllGlobalRankEntries();
+         const entries = await this.rankingService.getAllGlobalRankEntries();
 
          return res.status(200).json({
             status_code: 200,
             message: 'Entradas do ranking listada com sucesso.',
-            result: result,
+            data: entries,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -64,18 +65,23 @@ export class RankingController {
 
    @UseGuards(JwtAuthGuard)
    @Post()
+   @RateLimit({
+      points: 1,
+      duration: 20,
+      errorMessage: 'Muitas requisições. Tente novamente mais tarde',
+   })
    async setRankingEntry(
       @Headers('Authorization') auth: string,
       @Res() res: Response,
       @Body() data: RankingEntry,
    ) {
       try {
-         const result = await this.rankingService.setRankingEntry(auth, data);
+         const entry = await this.rankingService.setRankingEntry(auth, data);
 
          return res.status(201).json({
             status_code: 201,
             message: 'Entrada no ranking criada com sucesso.',
-            result: result,
+            data: entry,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);

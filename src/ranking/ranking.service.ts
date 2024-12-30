@@ -18,15 +18,15 @@ export class RankingService {
 
    tokenUtils = new TokenUtils(this.jwtService);
 
-   private cacheNormalRankingResult = [];
-   private cacheGlobalRankingResult = [];
+   private cacheNormalRankingData = [];
+   private cacheGlobalRankingData = [];
 
    async getAllRankingEntries(): Promise<any> {
       try {
-         if (this.cacheNormalRankingResult.length != 0) {
+         if (this.cacheNormalRankingData.length != 0) {
             console.log('Application: returning normal ranking cache entries');
 
-            return this.cacheNormalRankingResult;
+            return this.cacheNormalRankingData;
          }
 
          const rankingEntries = await this.prisma.ranking.findMany({
@@ -60,7 +60,7 @@ export class RankingService {
             },
          });
 
-         this.cacheNormalRankingResult = rankingEntries;
+         this.cacheNormalRankingData = rankingEntries;
          return rankingEntries;
       } catch (err) {
          throw err;
@@ -70,10 +70,10 @@ export class RankingService {
    /* Global Ranking Entries */
 
    async getAllGlobalRankEntries(): Promise<any> {
-      if (this.cacheGlobalRankingResult.length != 0) {
+      if (this.cacheGlobalRankingData.length != 0) {
          console.log('Application: returning global ranking cache entries');
 
-         return this.cacheGlobalRankingResult;
+         return this.cacheGlobalRankingData;
       }
 
       const rankingEntries = await this.prisma.ranking_global.findMany({
@@ -107,7 +107,7 @@ export class RankingService {
          },
       });
 
-      this.cacheGlobalRankingResult = rankingEntries;
+      this.cacheGlobalRankingData = rankingEntries;
       return rankingEntries;
    }
 
@@ -167,7 +167,7 @@ export class RankingService {
             });
          }
 
-         this.cacheNormalRankingResult = [];
+         this.cacheNormalRankingData = [];
          return newRankingEntry;
       } catch (err) {
          console.error(err);

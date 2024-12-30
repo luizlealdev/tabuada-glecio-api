@@ -24,10 +24,10 @@ Esse projeto é uma API para o jogo da tabuada do professor Glécio Raimundo da 
    JWT_TEMP_SECRET='yyyyyyyyyyyyyyyyyyyyyyy'
    JWT_EXPIRES_IN='15d'
 
-   SMTP_HOST='smtp.gmail.com'
-   SMTP_PORT='587'
-   SMTP_USER='example@gmail.com'
-   SMTP_PASS='xxx xxx xxx xxx'
+   EMAILJS_PUBLIC_KEY='xxxxxxxxxxxxxxxxxx'
+   EMAILJS_PRIVATE_KEY='yyyyyyyyyyyyyyyy'
+
+   SITE_URL='http://localhost:3000'
    ```
 4. Rode as migrações do banco de dados:
    ```bash
@@ -60,7 +60,7 @@ Cria um novo usuário
 {
     "status_code": 201,
     "message": "Usuário criado com sucesso.",
-    "result": {
+    "data": {
         "user": {
             "id": 7,
             "name": "Glécio Raimundo",
@@ -76,7 +76,7 @@ Cria um novo usuário
             },
             "is_admin": false
         },
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiZ2zDqWNpb0Bwcm9mLmNlLmdvdi5iciIsImlhdCI6MTczNTE0NzI4OSwiZXhwIjoxNzM2NDQzMjg5fQ.Nlx64JgXFTvX34yahIYCoVGY_6yqu8B7InYmgwFxL4g"
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiZ2zDqWNpb0Bwcm9mLmNlLmdvdi5iciIsImlhdCI6MTczNTE0NzI4OSwiZXhwIjoxNzM2NDQzMjg5fQ.Nlx64JgXFTvX34yahIYCoVGY_6yqu8B7InYmgwFxL4g"
     }
 }
 ```
@@ -100,7 +100,7 @@ Autentica um usuário e retorna um token JWT
 {
     "status_code": 200,
     "message": "Usuário logado com sucesso.",
-    "result": {
+    "data": {
         "user": {
             "id": 7,
             "name": "Glécio Raimundo",
@@ -116,7 +116,7 @@ Autentica um usuário e retorna um token JWT
             },
             "is_admin": false
         },
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiZ2zDqWNpb0Bwcm9mLmNlLmdvdi5iciIsImlhdCI6MTczNTE0NzM2NCwiZXhwIjoxNzM2NDQzMzY0fQ.gUSMlRdCvYcdSNpDpIVJHO6IfPqRb65dMowAWDKJKso"
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiZ2zDqWNpb0Bwcm9mLmNlLmdvdi5iciIsImlhdCI6MTczNTE0NzM2NCwiZXhwIjoxNzM2NDQzMzY0fQ.gUSMlRdCvYcdSNpDpIVJHO6IfPqRb65dMowAWDKJKso"
     }
 }
 ```
@@ -154,7 +154,7 @@ Recebe a nova senha do usuário e muda ela no banco de dados
 Authorization: Bearer {token}
 ```
 > [!NOTE]  
-> O token JWT usado nesta requisição é um token temporário (5 minutos) que é enviado no link do e-mail do usuário, como mostado abaixo.
+> O token JWT usado nesta requisição é um token temporário (5 minutos) que é enviado no link do botão do e-mail do usuário, como mostado abaixo.
 
 ```
 https://tabuadadoglecio.vercel.app/password-reset/confirm/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQsImVtYWlsIjoiY29udGF0ZXN0ZXNlaWxhMTJAZ21haWwuY29tIiwiaWF0IjoxNzM1MTQ5ODY5LCJleHAiOjE3MzUxNTAxNjl9.dF6FCotMzxR32giSgfp5ptbld4rJxEvvDOCJhOIV2mA
@@ -201,7 +201,7 @@ Authorization: Bearer {token}
 {
     "status_code": 200,
     "message": "Informações do usuário consultadas com sucesso.",
-    "result": {
+    "data": {
         "id": 1,
         "name": "Glécio Raimundo",
         "max_score": 0,
@@ -247,7 +247,7 @@ Authorization: Bearer {token}
 {
     "status_code": 200,
     "message": "Informações do usuário atualizadas com sucesso.",
-    "result": {
+    "data": {
         "id": 7,
         "name": "Glécio Prof",
         "course": {
@@ -298,7 +298,7 @@ Authorization: Bearer {token}
 
 #### `GET /api/v1/avatars/all`
 
-Retorna a lista de todos os avatars
+Retorna a lista de todos os avatares
 
 -  _Response_
 
@@ -306,7 +306,7 @@ Retorna a lista de todos os avatars
 {
     "status_code": 200,
     "message": "Avatares listados com sucesso.",
-    "result": [
+    "data": [
         {
             "id": 1,
             "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_1.webp",
@@ -342,20 +342,64 @@ Retorna a lista de todos os avatars
 }
 ```
 
+#### `GET /api/v1/avatars/id/:id`
+
+Retorna as informações de um avatar específico
+
+-  _Headers_ ``(Opcional, envie o token na requisição caso o usuário tenha acesso de Admin)``
+
+```
+Authorization: Bearer {token}
+```
+
+-  _Response_
+
+```json
+{
+    "status_code": 200,
+    "message": "Avatar buscado com sucesso.",
+    "data": [
+        {
+            "id": 1,
+            "path_default": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/default/avatar_1.webp",
+            "path_256px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_1.webp",
+            "path_128px": "https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/128/avatar_1.webp"
+        }
+    ]
+}
+```
+
+#### `GET /api/v1/avatars/:size/:id`
+
+Retorna a imagem do avatar
+
+-  _Response_
+
+![Default Avatar](https://raw.githubusercontent.com/luizlealdev/tabuada-glecio-api/refs/heads/master/uploads/images/avatars/256/avatar_1.webp)
+
+> [!TIP]
+> Os tamanhos disponíveis (:size) são `128`, `256` e `default`.
+
 ---
 
 ### Cursos
 
-#### `GET /api/v1/avatars/all`
+#### `GET /api/v1/courses/all` 
 
-Retorna a lista de todos os cursos
+Retorna a lista de todos os cursos/turmas
+
+-  _Headers_ ``(Opcional, envie o token na requisição caso o usuário tenha acesso de Admin)``
+
+```
+Authorization: Bearer {token}
+```
 
 -  _Response_
 ```json 
 {
     "status_code": 200,
     "message": "Cursos listados com sucesso.",
-    "result": [
+    "data": [
         {
             "id": 1,
             "name": "Informática",
@@ -381,6 +425,33 @@ Retorna a lista de todos os cursos
             "is_active": true
         },
         //...//
+    ]
+}
+```
+
+#### `GET /api/v1/courses/id/:id` 
+
+
+Retorna as informações de um curso/turma específica
+
+-  _Headers_ ``(Opcional, envie o token na requisição caso o usuário tenha acesso de Admin)``
+
+```
+Authorization: Bearer {token}
+```
+
+-  _Response_
+```json 
+{
+    "status_code": 200,
+    "message": "Curso buscado com sucesso.",
+    "data": [
+        {
+            "id": 15,
+            "name": "Informática 3",
+            "is_special": false,
+            "is_active": true
+        }
     ]
 }
 ```
@@ -413,7 +484,7 @@ Authorization: Bearer {token}
 {
     "status_code": 201,
     "message": "Entrada no ranking criada com sucesso.",
-    "result": {
+    "data": {
         "score": 30,
         "user_id": 1
     }
@@ -436,7 +507,7 @@ Authorization: Bearer {token}
 {
     "status_code": 200,
     "message": "Entradas do ranking listada com sucesso.",
-    "result": [
+    "data": [
         {
             "id": 2,
             "score": 24,
@@ -511,7 +582,7 @@ Authorization: Bearer {token}
 {
     "status_code": 200,
     "message": "Entradas do ranking listada com sucesso.",
-    "result": [
+    "data": [
         {
             "id": 2,
             "score": 24,

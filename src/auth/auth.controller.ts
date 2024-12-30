@@ -11,6 +11,7 @@ import { Response } from 'express';
 import { RegisterUser, LoginUser } from './dto/user.dto';
 import { CatchException } from '../utils/catch-exception';
 import { JwtTempStrategy } from './jwt/jwt-temp.strategy';
+import { RateLimit } from 'nestjs-rate-limiter';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -19,14 +20,19 @@ export class AuthController {
    exceptionCatcher = new CatchException();
 
    @Post('local/register')
+   @RateLimit({
+      points: 5,
+      duration: 35,
+      errorMessage: 'Muitas requisições. Tente novamente mais tarde',
+   })
    async register(@Res() res: Response, @Body() data: RegisterUser) {
       try {
-         const result = await this.authService.register(data);
+         const user = await this.authService.register(data);
 
          return res.status(201).json({
             status_code: 201,
             message: 'Usuário criado com sucesso.',
-            result: result,
+            data: user,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -39,14 +45,19 @@ export class AuthController {
    }
 
    @Post('local/login')
+   @RateLimit({
+      points: 5,
+      duration: 30,
+      errorMessage: 'Muitas requisições. Tente novamente mais tarde',
+   })
    async login(@Res() res: Response, @Body() data: LoginUser) {
       try {
-         const result = await this.authService.login(data);
+         const user = await this.authService.login(data);
 
          return res.status(200).json({
             status_code: 200,
             message: 'Usuário logado com sucesso.',
-            result: result,
+            data: user,
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -58,6 +69,11 @@ export class AuthController {
       }
    }
 
+   @RateLimit({
+      points: 1,
+      duration: 40,
+      errorMessage: 'Muitas requisições. Tente novamente mais tarde',
+   })
    @Post('password-reset/request')
    async sendCode(@Res() res: Response, @Body() data: any) {
       try {
@@ -65,7 +81,8 @@ export class AuthController {
 
          return res.status(200).json({
             status_code: 200,
-            message: 'E-mail enviado com sucesso. Verifique sua caixa de entrada.',
+            message:
+               'E-mail enviado com sucesso. Verifique sua caixa de entrada.',
          });
       } catch (err) {
          const exceptionInfo = this.exceptionCatcher.catch(err);
@@ -77,6 +94,11 @@ export class AuthController {
       }
    }
 
+   @RateLimit({
+      points: 1,
+      duration: 20,
+      errorMessage: 'Muitas requisições. Tente novamente mais tarde',
+   })
    @UseGuards(JwtTempStrategy)
    @Post('password-reset/confirm')
    async resetPassword(
