@@ -92,6 +92,7 @@ export class AuthService {
                course: user.course,
                avatar_id: user.avatar_id,
                avatar: user.avatar,
+               max_score: user.max_score,
                is_admin: user.is_admin,
             },
             access_token: this.jwtService.sign({
