@@ -45,15 +45,13 @@ export class RankingService {
                      course: {
                         select: {
                            name: true,
-                        }
+                        },
                      },
                      avatar_id: true,
                      avatar: {
                         select: {
-                           path_default: true,
-                           path_256px: true,
-                           path_128px: true
-                        }
+                           path_128px: true,
+                        },
                      },
                   },
                },
@@ -80,7 +78,7 @@ export class RankingService {
          orderBy: {
             score: 'desc',
          },
-         take: 100,
+         take: 99,
          select: {
             id: true,
             score: true,
@@ -92,15 +90,13 @@ export class RankingService {
                   course: {
                      select: {
                         name: true,
-                     }
+                     },
                   },
                   avatar_id: true,
                   avatar: {
                      select: {
-                        path_default: true,
-                        path_256px: true,
-                        path_128px: true
-                     }
+                        path_128px: true,
+                     },
                   },
                },
             },
@@ -157,6 +153,7 @@ export class RankingService {
                   user_id: true,
                },
             });
+
             await this.prisma.user.update({
                where: {
                   id: decodedToken.sub,
@@ -165,6 +162,8 @@ export class RankingService {
                   max_score: data.score,
                },
             });
+
+            this.cacheGlobalRankingData = [];
          }
 
          this.cacheNormalRankingData = [];
@@ -186,7 +185,9 @@ export class RankingService {
          });
 
          if (!admin || !admin.is_admin)
-            throw new UnauthorizedException('Você não tem permissão para acessar este recurso.');
+            throw new UnauthorizedException(
+               'Você não tem permissão para acessar este recurso.',
+            );
 
          await this.prisma.ranking.deleteMany();
       } catch (err) {
