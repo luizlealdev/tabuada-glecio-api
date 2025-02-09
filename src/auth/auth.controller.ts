@@ -71,7 +71,7 @@ export class AuthController {
 
    @RateLimit({
       points: 1,
-      duration: 40,
+      duration: 20,
       errorMessage: 'Muitas requisições. Tente novamente mais tarde',
    })
    @Post('password-reset/request')

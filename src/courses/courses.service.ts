@@ -32,12 +32,18 @@ export class CoursesService {
                where: {
                   is_active: true,
                },
+               orderBy: {
+                  name: 'asc',
+               },
             });
          } else {
             courses = await this.prisma.course.findMany({
                where: {
                   is_special: false,
                   is_active: true,
+               },
+               orderBy: {
+                  name: 'asc',
                },
             });
          }

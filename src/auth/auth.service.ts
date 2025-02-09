@@ -44,7 +44,10 @@ export class AuthService {
                avatar: user.avatar,
                is_admin: user.is_admin,
             },
-            access_token: this.jwtService.sign({ sub: user.id, email: user.email }),
+            access_token: this.jwtService.sign({
+               sub: user.id,
+               email: user.email,
+            }),
          };
       } catch (err) {
          console.error(err);
@@ -74,7 +77,10 @@ export class AuthService {
             },
          });
 
-         if (!user) throw new UnauthorizedException('O usuário não foi encontrado.');
+         if (!user)
+            throw new NotFoundException(
+               'O usuário com este não foi encontrado.',
+            );
 
          const passwordMatches = await bcrypt.compare(
             data.password,
@@ -118,7 +124,7 @@ export class AuthService {
             select: {
                id: true,
                email: true,
-               name: true
+               name: true,
             },
          });
 
@@ -129,7 +135,11 @@ export class AuthService {
                secret: process.env.JWT_TEMP_SECRET,
             });
 
-            await this.mailService.sendResetPasswordEmail(data.email, user.name, tempJwtToken);
+            await this.mailService.sendResetPasswordEmail(
+               data.email,
+               user.name,
+               tempJwtToken,
+            );
          }
       } catch (err) {
          console.error(err);
@@ -151,10 +161,9 @@ export class AuthService {
             },
          });
 
-         if (!user)
-            new UnauthorizedException('O usuário não foi encontrado.');
+         if (!user) new UnauthorizedException('O usuário não foi encontrado.');
 
-         let newPassword = await bcrypt.hash(data.new_password, 10);
+         const newPassword = await bcrypt.hash(data.new_password, 10);
 
          await this.prisma.user.update({
             where: {
