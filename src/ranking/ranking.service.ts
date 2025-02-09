@@ -190,6 +190,7 @@ export class RankingService {
             );
 
          await this.prisma.ranking.deleteMany();
+         this.cacheNormalRankingData = [];
       } catch (err) {
          console.error(err);
          throw err;
